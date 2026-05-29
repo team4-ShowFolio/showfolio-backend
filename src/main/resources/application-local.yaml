@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: showFilo
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/showfolio?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: gustjq0826@
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+jwt:
+  secret: showfolio-secret-key-2024-abcdefghijklmnopqrstuvwxyz123456
+  access-expiration: 3600000
+  refresh-expiration: 1209600000
+
+server:
+  port: 8080
