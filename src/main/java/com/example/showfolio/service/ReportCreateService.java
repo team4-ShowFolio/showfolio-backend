@@ -2,10 +2,12 @@ package com.example.showfolio.service;
 
 import com.example.showfolio.dto.CreateReportRequest;
 import com.example.showfolio.entity.Report;
+import com.example.showfolio.event.ReportCreatedEvent;
 import com.example.showfolio.port.ReportValidator;
 import com.example.showfolio.port.Reporter;
 import com.example.showfolio.repository.ReportRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +17,7 @@ public class ReportCreateService implements Reporter {
 
     private final ReportRepository reportRepository;
     private final ReportValidator reportValidator;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -25,8 +28,7 @@ public class ReportCreateService implements Reporter {
         reportValidator.validateTargetExists(request.targetId(), request.targetType());
         reportValidator.validateReportReason(request.reportReason(), request.content());
 
-        // 신고 관련 DB 작업을 진행합니다.
-        Report report = Report.from(request);
-        reportRepository.save(report);
+        Report report = reportRepository.save(Report.from(request));
+        eventPublisher.publishEvent(new ReportCreatedEvent(report));
     }
 }

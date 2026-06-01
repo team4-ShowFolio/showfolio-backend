@@ -25,7 +25,7 @@ public class ReportProcess {
     @JoinColumn(name = "target_id", nullable = false, unique = true)
     private Report report;
 
-    @Column(nullable = false)
+    @Column
     private Long adminId;
 
     @Enumerated(EnumType.STRING)
@@ -50,5 +50,11 @@ public class ReportProcess {
         reportProcess.status = status;
         reportProcess.reason = reason;
         return reportProcess;
+    }
+
+    public void update(Long adminId, ProcessStatus status, String reason) {
+        this.adminId = adminId;
+        this.status = status;
+        this.reason = reason;
     }
 }
