@@ -1,5 +1,6 @@
 package com.example.showfolio.service;
 
+import com.example.showfolio.dto.ReportResponse;
 import com.example.showfolio.dto.ReportSearchCondition;
 import com.example.showfolio.entity.Report;
 import com.example.showfolio.port.ReportReader;
@@ -19,14 +20,15 @@ public class ReportReadService implements ReportReader {
 
     @Override
     @Transactional(readOnly = true)
-    public Report getById(Long id) {
+    public ReportResponse getById(Long id) {
         return reportRepository.findById(id)
+                .map(ReportResponse::from)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신고입니다."));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Report> getAll(ReportSearchCondition condition, Pageable pageable) {
+    public Page<ReportResponse> getAll(ReportSearchCondition condition, Pageable pageable) {
         Specification<Report> spec = (root, query, cb) -> null;
 
         if (condition.targetType() != null) {
@@ -36,6 +38,6 @@ public class ReportReadService implements ReportReader {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("reporterId"), condition.reporterId()));
         }
 
-        return reportRepository.findAll(spec, pageable);
+        return reportRepository.findAll(spec, pageable).map(ReportResponse::from);
     }
 }

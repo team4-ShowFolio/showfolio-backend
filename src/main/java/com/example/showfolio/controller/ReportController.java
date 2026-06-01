@@ -1,8 +1,8 @@
 package com.example.showfolio.controller;
 
 import com.example.showfolio.dto.CreateReportRequest;
+import com.example.showfolio.dto.ReportResponse;
 import com.example.showfolio.dto.ReportSearchCondition;
-import com.example.showfolio.entity.Report;
 import com.example.showfolio.port.ReportReader;
 import com.example.showfolio.service.ReportService;
 import jakarta.validation.Valid;
@@ -32,13 +32,13 @@ public class ReportController {
 
     // TODO ADMIN 권한 설정 필요
     @GetMapping("/{id}")
-    public ResponseEntity<Report> getReport(@PathVariable Long id) {
+    public ResponseEntity<ReportResponse> getReport(@PathVariable Long id) {
         return ResponseEntity.ok(reportReader.getById(id));
     }
 
     // TODO ADMIN 권한 설정 필요
     @GetMapping
-    public ResponseEntity<Page<Report>> getReports(
+    public ResponseEntity<Page<ReportResponse>> getReports(
             @ModelAttribute ReportSearchCondition condition,
             @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
