@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class ReportService implements Reporter {
+public class ReportCreateService implements Reporter {
 
     private final ReportRepository reportRepository;
     private final ReportValidator reportValidator;
@@ -29,5 +29,4 @@ public class ReportService implements Reporter {
         Report report = Report.from(request);
         reportRepository.save(report);
     }
-
 }

@@ -4,7 +4,7 @@ import com.example.showfolio.dto.CreateReportRequest;
 import com.example.showfolio.dto.ReportResponse;
 import com.example.showfolio.dto.ReportSearchCondition;
 import com.example.showfolio.port.ReportReader;
-import com.example.showfolio.service.ReportService;
+import com.example.showfolio.service.ReportCreateService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,14 +19,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/reports")
 public class ReportController {
 
-    private final ReportService reportService;
+    private final ReportCreateService reportCreateService;
     private final ReportReader reportReader;
 
     @PostMapping
     public ResponseEntity<Void> createReport(
             @Valid @RequestBody CreateReportRequest request
     ) {
-        reportService.report(request);
+        reportCreateService.report(request);
         return ResponseEntity.noContent().build();
     }
 

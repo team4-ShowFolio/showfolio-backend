@@ -1,4 +1,4 @@
-package com.example.showfolio.service;
+package com.example.showfolio.component;
 
 import com.example.showfolio.entity.ReportReason;
 import com.example.showfolio.entity.TargetType;
