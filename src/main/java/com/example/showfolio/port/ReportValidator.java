@@ -10,9 +10,9 @@ import com.example.showfolio.entity.TargetType;
 public interface ReportValidator {
     void validateTargetExists(Long targetId, TargetType targetType);
 
-    void validateDuplicateReport(Long reporterId, Long targetId, TargetType targetType);
+    void validateDuplicateReport(Long userId, Long targetId, TargetType targetType);
 
-    void validateSelfReport(Long reporterId, Long targetId, TargetType targetType);
+    void validateSelfReport(Long userId, Long targetId, TargetType targetType);
 
     void validateReportReason(ReportReason reason, String content);
 }

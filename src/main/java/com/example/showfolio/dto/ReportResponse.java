@@ -8,7 +8,7 @@ import java.time.Instant;
 
 public record ReportResponse(
         Long id,
-        Long reporterId,
+        Long userId,
         Long targetId,
         TargetType targetType,
         ReportReason reportReason,

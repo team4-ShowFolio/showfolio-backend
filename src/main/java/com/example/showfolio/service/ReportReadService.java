@@ -31,8 +31,8 @@ public class ReportReadService implements ReportReader {
         if (condition.targetId() != null) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("targetId"), condition.targetId()));
         }
-        if (condition.reporterId() != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("reporterId"), condition.reporterId()));
+        if (condition.userId() != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("userId"), condition.userId()));
         }
         if (condition.targetType() != null) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("targetType"), condition.targetType()));
@@ -52,8 +52,8 @@ public class ReportReadService implements ReportReader {
         if (condition.reportId() != null) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("report").get("id"), condition.reportId()));
         }
-        if (condition.reporterId() != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("report").get("reporterId"), condition.reporterId()));
+        if (condition.userId() != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("report").get("userId"), condition.userId()));
         }
         if (condition.status() != null) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), condition.status()));

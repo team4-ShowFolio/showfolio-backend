@@ -5,7 +5,7 @@ import com.example.showfolio.entity.TargetType;
 
 public record ReportSearchCondition(
         Long targetId,
-        Long reporterId,
+        Long userId,
         TargetType targetType,
         ReportReason reportReason
 ) {

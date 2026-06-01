@@ -22,7 +22,7 @@ public class Report {
 
     // TODO 회원 테이블과 피드, 댓글 관련한 기능 병합되면 연관관계 설정할지 판단 필요
     @Column(nullable = false)
-    private Long reporterId;
+    private Long userId;
 
     @Column(nullable = false)
     private Long targetId;
@@ -44,7 +44,7 @@ public class Report {
 
     public static Report from(ReportCreateRequest request) {
         Report report = new Report();
-        report.reporterId = request.reporterId();
+        report.userId = request.userId();
         report.targetId = request.targetId();
         report.targetType = request.targetType();
         report.reportReason = request.reportReason();

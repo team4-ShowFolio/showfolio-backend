@@ -27,8 +27,8 @@ public class ReportValidatorService implements ReportValidator {
     }
 
     @Override
-    public void validateDuplicateReport(Long reporterId, Long targetId, TargetType targetType) {
-        if (reportRepository.existsByReporterIdAndTargetIdAndTargetType(reporterId, targetId, targetType)) {
+    public void validateDuplicateReport(Long userId, Long targetId, TargetType targetType) {
+        if (reportRepository.existsByUserIdAndTargetIdAndTargetType(userId, targetId, targetType)) {
             // TODO GlobalExceptionHandler 구현 완료되면 확인 필요
             throw new IllegalStateException("이미 신고한 대상입니다.");
         }
@@ -36,13 +36,13 @@ public class ReportValidatorService implements ReportValidator {
 
     // TODO Feed, Comment 기능 병합하면 그때 구현 진행
     @Override
-    public void validateSelfReport(Long reporterId, Long targetId, TargetType targetType) {
+    public void validateSelfReport(Long userId, Long targetId, TargetType targetType) {
         Long authorId = switch (targetType) {
             case FEED -> null; // TODO: FeedRepository 주입 후 작성자 ID 조회
             case COMMENT -> null; // TODO: CommentRepository 주입 후 작성자 ID 조회
         };
 
-        if (reporterId.equals(authorId)) {
+        if (userId.equals(authorId)) {
             throw new IllegalArgumentException("자신의 게시글은 신고할 수 없습니다.");
         }
     }
