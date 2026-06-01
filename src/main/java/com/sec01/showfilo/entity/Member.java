@@ -1,31 +1,31 @@
 package com.sec01.showfilo.entity;
 
 import com.sec01.showfilo.enums.Role;
+import com.sec01.showfilo.enums.SubscriptionType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
-@Table(name="user")
+@Table(name = "member")
 @Getter
 @Setter
 @NoArgsConstructor
-public class User {
+public class Member {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false,unique = true)
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
 
     @Column(length = 255)
-    private String password; //소셜로그인은 null가능
+    private String password;
 
-    @Column(nullable = false,unique = true)
+    @Column(nullable = false, unique = true, length = 50)
     private String nickname;
 
     @Column(length = 255)
@@ -36,7 +36,13 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role; // USER, ADMIN
+    private Role role = Role.USER;  // ← 추가!
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SubscriptionType subscriptionType = SubscriptionType.FREE;
+
+    private LocalDateTime subscriptionExpiredAt;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -45,7 +51,6 @@ public class User {
 
     private LocalDateTime deletedAt;
 
-    //생성시 자동으로 현재시간 입력
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -55,6 +60,4 @@ public class User {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
-
 }

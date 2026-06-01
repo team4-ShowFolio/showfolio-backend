@@ -11,4 +11,6 @@ public class SignupRequest {
     private String email;
     private String password;
     private String nickname;
+    private String profileImage;
+    private String bio;
 }

@@ -3,12 +3,11 @@ package com.sec01.showfilo.DTO.request;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class UpdateProfileRequest {
-    private String nickname;
-    private String profileImage;
-    private String bio;
+public class TechStackRequest {
+    private List<String> techNames;
 }

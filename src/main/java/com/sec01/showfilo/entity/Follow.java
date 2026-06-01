@@ -1,6 +1,5 @@
 package com.sec01.showfilo.entity;
 
-import com.sec01.showfilo.enums.Provider;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,29 +7,28 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "social_account")
+@Table(name = "follow")
 @Getter
 @Setter
 @NoArgsConstructor
-public class SocialAccount {
+public class Follow {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Provider provider;
+    // 팔로우 하는 사람
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "follower_id", nullable = false)
+    private Member follower;
 
-    @Column(nullable = false, length = 100)
-    private String providerId;
+    // 팔로우 받는 사람
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "following_id", nullable = false)
+    private Member following;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private Member member;
 
     @PrePersist
     protected void onCreate() {
