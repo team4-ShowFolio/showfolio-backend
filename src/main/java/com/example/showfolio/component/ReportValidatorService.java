@@ -28,7 +28,7 @@ public class ReportValidatorService implements ReportValidator {
 
     @Override
     public void validateDuplicateReport(Long userId, Long targetId, TargetType targetType) {
-        if (reportRepository.existsByUserIdAndTargetIdAndTargetType(userId, targetId, targetType)) {
+        if (reportRepository.existsByReporterIdAndTargetIdAndTargetType(userId, targetId, targetType)) {
             // TODO GlobalExceptionHandler 구현 완료되면 확인 필요
             throw new IllegalStateException("이미 신고한 대상입니다.");
         }

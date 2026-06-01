@@ -8,7 +8,7 @@ import java.time.Instant;
 // TODO 신고자 닉네임, 피신고자 닉네임, 신고사유, 게시글 ID, 게시글 타이틀
 public record ReportResponse(
         Long id,
-        Long userId,
+        Long reporterId,
         Long targetId,
         TargetType targetType,
         ReportReason reportReason,
@@ -18,7 +18,7 @@ public record ReportResponse(
     public static ReportResponse from(Report report) {
         return new ReportResponse(
                 report.getId(),
-                report.getUserId(),
+                report.getReporterId(),
                 report.getTargetId(),
                 report.getTargetType(),
                 report.getReportReason(),

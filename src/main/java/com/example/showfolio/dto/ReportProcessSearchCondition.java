@@ -4,7 +4,7 @@ import com.example.showfolio.entity.ProcessStatus;
 
 public record ReportProcessSearchCondition(
         Long reportId,
-        Long userId,
+        Long reporterId,
         ProcessStatus status
 ) {
 }

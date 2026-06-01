@@ -23,8 +23,8 @@ public class ReportCreateService implements Reporter {
     @Transactional
     public void report(ReportCreateRequest request) {
         // 다른 서비스에서 호출할 가능성이 있으므로, 검증 로직도 작성합니다.
-        reportValidator.validateDuplicateReport(request.userId(), request.targetId(), request.targetType());
-        reportValidator.validateSelfReport(request.userId(), request.targetId(), request.targetType());
+        reportValidator.validateDuplicateReport(request.reporterId(), request.targetId(), request.targetType());
+        reportValidator.validateSelfReport(request.reporterId(), request.targetId(), request.targetType());
         reportValidator.validateTargetExists(request.targetId(), request.targetType());
         reportValidator.validateReportReason(request.reportReason(), request.content());
 
