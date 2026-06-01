@@ -2,6 +2,7 @@ package com.example.showfolio.controller;
 
 import com.example.showfolio.dto.ReportProcessRequest;
 import com.example.showfolio.dto.ReportProcessResponse;
+import com.example.showfolio.dto.ReportProcessSearchCondition;
 import com.example.showfolio.dto.ReportResponse;
 import com.example.showfolio.dto.ReportSearchCondition;
 import com.example.showfolio.port.ReportProcessor;
@@ -31,9 +32,17 @@ public class AdminReportController {
         return ResponseEntity.ok(reportReader.getAll(condition, pageable));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}/histories")
     public ResponseEntity<ReportProcessResponse> getReport(@PathVariable Long id) {
         return ResponseEntity.ok(reportReader.getProcessByReportId(id));
+    }
+
+    @GetMapping("/histories")
+    public ResponseEntity<Page<ReportProcessResponse>> getProcesses(
+            @ModelAttribute ReportProcessSearchCondition condition,
+            @PageableDefault(sort = "updatedAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return ResponseEntity.ok(reportReader.getAllProcesses(condition, pageable));
     }
 
     @PostMapping("/process")
