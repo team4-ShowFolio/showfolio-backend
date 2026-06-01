@@ -2,6 +2,7 @@ package com.example.showfolio.controller;
 
 import com.example.showfolio.dto.AdminMemberResponse;
 import com.example.showfolio.dto.MemberSearchCondition;
+import com.example.showfolio.dto.MemberRoleUpdateRequest;
 import com.example.showfolio.dto.MemberSuspendRequest;
 import com.example.showfolio.service.AdminMemberService;
 import jakarta.validation.Valid;
@@ -28,9 +29,10 @@ public class AdminMemberController {
 
     @PutMapping("/{id}/role")
     public ResponseEntity<Void> updateRole(
-            @PathVariable Long id
+            @PathVariable Long id,
+            @RequestBody @Valid MemberRoleUpdateRequest request
     ) {
-        adminMemberService.updateRole(id);
+        adminMemberService.updateRole(id, request);
         return ResponseEntity.noContent().build();
     }
 

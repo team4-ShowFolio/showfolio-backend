@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class MemberRoleUpdaterService implements MemberRoleUpdater {
 
     @Override
-    public void updateRole(Long userId) {
+    public void updateRole(Long userId, String role) {
         // TODO 회원 기능 병합하면 구현 진행
     }
 }

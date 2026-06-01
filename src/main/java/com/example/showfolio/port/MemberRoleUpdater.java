@@ -6,6 +6,7 @@ package com.example.showfolio.port;
  */
 public interface MemberRoleUpdater {
 
-    void updateRole(Long userId);
+    // TODO Member 기능 병합 후 String role → MemberRole 타입으로 변경
+    void updateRole(Long userId, String role);
 
 }

@@ -1,6 +1,7 @@
 package com.example.showfolio.service;
 
 import com.example.showfolio.dto.AdminMemberResponse;
+import com.example.showfolio.dto.MemberRoleUpdateRequest;
 import com.example.showfolio.dto.MemberSearchCondition;
 import com.example.showfolio.dto.MemberSuspendRequest;
 import com.example.showfolio.port.MemberReader;
@@ -20,8 +21,8 @@ public class AdminMemberService {
     private final MemberStatusUpdater statusUpdater;
     private final MemberReader reader;
 
-    public void updateRole(Long id) {
-        roleUpdater.updateRole(id);
+    public void updateRole(Long id, MemberRoleUpdateRequest request) {
+        roleUpdater.updateRole(id, request.role());
     }
 
     public void updateStatus(Long id, MemberSuspendRequest request) {
