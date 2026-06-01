@@ -1,6 +1,8 @@
 package com.example.showfolio.repository;
 
+import com.example.showfolio.entity.QFeedTag;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.example.showfolio.entity.Feed;
 import com.example.showfolio.entity.QFeed;
@@ -82,6 +84,64 @@ public class FeedRepositoryCustomImpl implements FeedRepositoryCustom {
                 .selectFrom(feed)
                 .where(builder)
                 .orderBy(feed.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Long total = queryFactory
+                .select(feed.count())
+                .from(feed)
+                .where(builder)
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, total != null ? total : 0);
+    }
+
+    @Override
+    public Page<Feed> searchFeeds(
+            String keyword,
+            String tags,
+            String author,
+            String sort,
+            Pageable pageable) {
+
+        QFeedTag feedTag = QFeedTag.feedTag;
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        builder.and(feed.visibility.eq(Visibility.PUBLIC));
+
+        if (keyword != null && !keyword.isBlank()) {
+            builder.and(
+                    feed.title.contains(keyword)
+                            .or(feed.content.contains(keyword))
+            );
+        }
+
+        if (tags != null && !tags.isBlank()) {
+            builder.and(
+                    feed.id.in(
+                            queryFactory
+                                    .select(feedTag.feed.id)
+                                    .from(feedTag)
+                                    .where(feedTag.tagName.eq(tags))
+                    )
+            );
+        }
+
+        if (author != null && !author.isBlank()) {
+            builder.and(feed.user.nickname.contains(author));
+        }
+
+        // 정렬 조건 (latest - 최신순 ,likes - 좋아요순)
+        OrderSpecifier<?> orderSpecifier = "likes".equals(sort)
+                ? feed.likes.size().desc()
+                : feed.createdAt.desc();
+
+        List<Feed> content = queryFactory
+                .selectFrom(feed)
+                .where(builder)
+                .orderBy(orderSpecifier)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();

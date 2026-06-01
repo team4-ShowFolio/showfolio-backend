@@ -249,6 +249,42 @@ public class FeedService {
         return FeedLikeResponse.of(feedId, likeCount, !isLiked);
     }
 
+    // 좋아요한 피드 목록
+    public Page<FeedResponse> getLikedFeeds(
+            int page,
+            int size,
+            Long currentUserId) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Feed> feeds = feedLikeRepository
+                .findLikedFeedsByUserId(currentUserId, pageable);
+
+        return feeds.map(feed ->
+                FeedResponse.from(feed, true)
+        );
+    }
+
+    // 피드 검색
+    public Page<FeedResponse> searchFeeds(
+            String keyword,
+            String tags,
+            String author,
+            String sort,
+            int page,
+            int size,
+            Long currentUserId) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Feed> feeds = feedRepository
+                .searchFeeds(keyword, tags, author, sort, pageable);
+
+        return feeds.map(feed -> {
+            boolean isLiked = feedLikeRepository
+                    .existsByFeedIdAndUserId(feed.getId(), currentUserId);
+            return FeedResponse.from(feed, isLiked);
+        });
+    }
+
     // 공개 범위 검증
     private void validateVisibility(Feed feed, Long currentUserId) {
         switch (feed.getVisibility()) {

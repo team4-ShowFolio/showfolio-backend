@@ -16,4 +16,13 @@ public interface FeedRepositoryCustom {
 
     // 내 피드 목록 (전체 공개범위)
     Page<Feed> findMyFeeds(Long userId, Pageable pageable);
+
+    // 피드 검색
+    Page<Feed> searchFeeds(
+            String keyword,
+            String tags,
+            String author,
+            String sort,
+            Pageable pageable
+    );
 }
