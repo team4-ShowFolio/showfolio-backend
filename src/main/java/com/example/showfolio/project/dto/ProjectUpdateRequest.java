@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
+import java.util.List;
+
 public record ProjectUpdateRequest(
         @NotBlank(message = "제목은 필수입니다")
         @Size(max = 100) String title,
@@ -18,5 +20,7 @@ public record ProjectUpdateRequest(
         boolean isTeam,
         Integer teamSize,
         @Size(max = 100) String myRole,
-        Visibility visibility
+        Visibility visibility,
+        List<String> stacks
+
 ) {}

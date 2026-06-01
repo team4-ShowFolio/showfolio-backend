@@ -3,6 +3,7 @@ package com.example.showfolio.project.repository;
 import com.example.showfolio.project.dto.ProjectSearchCondition;
 import com.example.showfolio.project.entity.Project;
 import com.example.showfolio.project.entity.QProject;
+import com.example.showfolio.project.entity.QProjectTech;
 import com.example.showfolio.project.entity.Visibility;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -19,7 +20,6 @@ public class ProjectRepositoryCustomImpl implements ProjectRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
-    // 전역 Bean 없이 EntityManager로 직접 생성(팀 설정 충돌 고려)
     public ProjectRepositoryCustomImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
     }
@@ -27,33 +27,39 @@ public class ProjectRepositoryCustomImpl implements ProjectRepositoryCustom {
     @Override
     public Page<Project> search(ProjectSearchCondition condition, Pageable pageable) {
         QProject project = QProject.project;
+        QProjectTech tech = QProjectTech.projectTech;
 
-        // 컨텐츠 조회
         List<Project> content = queryFactory
                 .selectFrom(project)
+                .distinct()
+                .leftJoin(project.techStacks, tech)   // stacks 검색용 조인
                 .where(
-                        project.visibility.eq(Visibility.PUBLIC),  // 공개 목록은 PUBLIC만
-                        keywordContains(condition.keyword())        // null이면 자동 무시
+                        project.visibility.eq(Visibility.PUBLIC),
+                        keywordContains(condition.keyword()),
+                        authorEq(condition.author()),
+                        stacksIn(condition.stacks())
                 )
                 .orderBy(sortOrder(condition.sort()))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        // 카운트 조회 (페이징 total)
         Long total = queryFactory
-                .select(project.count())
+                .select(project.countDistinct())
                 .from(project)
+                .leftJoin(project.techStacks, tech)
                 .where(
                         project.visibility.eq(Visibility.PUBLIC),
-                        keywordContains(condition.keyword())
+                        keywordContains(condition.keyword()),
+                        authorEq(condition.author()),
+                        stacksIn(condition.stacks())
                 )
                 .fetchOne();
 
         return new PageImpl<>(content, pageable, total == null ? 0 : total);
     }
 
-    // 제목 또는 설명에 keyword 포함 (대소문자 무시). 빈 값이면 null → where에서 무시
+    // 제목/설명 부분일치 (대소문자 무시)
     private BooleanExpression keywordContains(String keyword) {
         if (!StringUtils.hasText(keyword)) {
             return null;
@@ -63,16 +69,25 @@ public class ProjectRepositoryCustomImpl implements ProjectRepositoryCustom {
                 .or(project.description.containsIgnoreCase(keyword));
     }
 
-    // 정렬: likes | views | (그 외=latest)
+    // 작성자(memberId) 일치
+    private BooleanExpression authorEq(Long author) {
+        return author == null ? null : QProject.project.memberId.eq(author);
+    }
+
+    // 기술스택 중 하나라도 포함 (OR)
+    private BooleanExpression stacksIn(List<String> stacks) {
+        if (stacks == null || stacks.isEmpty()) {
+            return null;
+        }
+        return QProjectTech.projectTech.techName.in(stacks);
+    }
+
+    // 정렬: likes | (그 외=latest)
     private OrderSpecifier<?> sortOrder(String sort) {
         QProject project = QProject.project;
-        if (sort == null) {
-            return project.createdAt.desc();
+        if ("likes".equals(sort)) {
+            return project.likeCount.desc();
         }
-        return switch (sort) {
-            case "likes" -> project.likeCount.desc();
-            case "views" -> project.viewCount.desc();
-            default -> project.createdAt.desc();
-        };
+        return project.createdAt.desc();   // latest 기본
     }
 }

@@ -1,10 +1,12 @@
 package com.example.showfolio.project.dto;
 
 import com.example.showfolio.project.entity.Project;
+import com.example.showfolio.project.entity.ProjectTech;
 import com.example.showfolio.project.entity.Visibility;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record ProjectResponse(
         Long id,
@@ -22,7 +24,9 @@ public record ProjectResponse(
         int viewCount,
         int likeCount,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        List<String> stacks
+
 ) {
     public static ProjectResponse from(Project p) {
         return new ProjectResponse(
@@ -41,7 +45,8 @@ public record ProjectResponse(
                 p.getViewCount(),
                 p.getLikeCount(),
                 p.getCreatedAt(),
-                p.getUpdatedAt()
+                p.getUpdatedAt(),
+                p.getTechStacks().stream().map(ProjectTech::getTechName).toList()
         );
     }
 }

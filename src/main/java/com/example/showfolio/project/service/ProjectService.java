@@ -47,6 +47,10 @@ public class ProjectService {
                 .myRole(req.myRole())
                 .visibility(req.visibility() != null ? req.visibility() : Visibility.PUBLIC)
                 .build();
+        
+        if (req.stacks() != null) {
+            req.stacks().forEach(project::addTechStack);
+        }
         return ProjectResponse.from(projectRepository.save(project));
     }
 
@@ -69,6 +73,8 @@ public class ProjectService {
         project.update(req.title(), req.description(), req.githubUrl(), req.deployUrl(),
                 req.startDate(), req.endDate(), req.isTeam(), req.teamSize(),
                 req.myRole(), req.visibility());
+        project.updateTechStacks(req.stacks());
+
         return ProjectResponse.from(project);
     }
 
@@ -80,11 +86,12 @@ public class ProjectService {
         project.softDelete();
     }
 
-    /** 본인 프로젝트 목록 (PRIVATE 포함) */
-    public List<ProjectResponse> getMyProjects(Long memberId) {
-        return projectRepository.findByMemberIdOrderByCreatedAtDesc(memberId)
-                .stream().map(ProjectResponse::from).toList();
+    /** 본인 프로젝트 목록 (PRIVATE 포함) — 페이징 */
+    public Page<ProjectResponse> getMyProjects(Long memberId, Pageable pageable) {
+        return projectRepository.findByMemberIdOrderByCreatedAtDesc(memberId, pageable)
+                .map(ProjectResponse::from);
     }
+
 
     /** 특정 유저 프로젝트 목록 (PUBLIC만) */
     public List<ProjectResponse> getMemberProjects(Long memberId) {

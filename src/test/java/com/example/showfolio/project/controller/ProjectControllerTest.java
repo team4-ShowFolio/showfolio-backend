@@ -41,7 +41,8 @@ class ProjectControllerTest {
                 1L, 7L, "포트폴리오", "설명", "https://gh", "https://deploy",
                 LocalDate.of(2026, 3, 1), LocalDate.of(2026, 5, 1),
                 true, 4, "백엔드", Visibility.PUBLIC, 10, 3,
-                LocalDateTime.now(), LocalDateTime.now());
+                LocalDateTime.now(), LocalDateTime.now(),
+                List.of("Spring", "QueryDSL"));
     }
 
     @Test
@@ -89,7 +90,7 @@ class ProjectControllerTest {
     void 검색_200() throws Exception {
         given(projectService.search(any(), any(Pageable.class)))
                 .willReturn(new PageImpl<>(List.of(sample())));
-        mockMvc.perform(get("/api/projects").param("keyword", "포트").param("sort", "likes"))
+        mockMvc.perform(get("/api/projects/search").param("keyword", "포트").param("sort", "likes"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value(1));
     }

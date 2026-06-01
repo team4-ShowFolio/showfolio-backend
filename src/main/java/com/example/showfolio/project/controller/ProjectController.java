@@ -64,12 +64,15 @@ public class ProjectController {
         return ResponseEntity.noContent().build();
     }
 
-    /** 본인 프로젝트 목록 (PRIVATE 포함) */
+    /** 본인 프로젝트 목록 (PRIVATE 포함) — GET /api/projects/me?page=&size= */
     @GetMapping("/me")
-    public ResponseEntity<List<ProjectResponse>> getMyProjects(Authentication authentication) {
+    public ResponseEntity<Page<ProjectResponse>> getMyProjects(
+            Authentication authentication,
+            @PageableDefault(size = 20) Pageable pageable) {
         Long memberId = currentMemberId(authentication);
-        return ResponseEntity.ok(projectService.getMyProjects(memberId));
+        return ResponseEntity.ok(projectService.getMyProjects(memberId, pageable));
     }
+
 
     /** 특정 유저 프로젝트 목록 (PUBLIC만) */
     @GetMapping("/members/{memberId}")
@@ -77,15 +80,18 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.getMemberProjects(memberId));
     }
 
-    /** 검색 / 정렬 / 페이징 — GET /api/projects?keyword=&sort=&page=&size= */
-    @GetMapping
-    public ResponseEntity<Page<ProjectResponse>> getProjects(
+    /** 검색 — GET /api/projects/search?keyword=&stacks=&author=&sort=latest|likes&page=&size= */
+    @GetMapping("/search")
+    public ResponseEntity<Page<ProjectResponse>> search(
             @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) List<String> stacks,
+            @RequestParam(required = false) Long author,
             @RequestParam(required = false, defaultValue = "latest") String sort,
-            @PageableDefault(size = 10) Pageable pageable) {
-        ProjectSearchCondition condition = new ProjectSearchCondition(keyword, sort);
+            @PageableDefault(size = 20) Pageable pageable) {
+        ProjectSearchCondition condition = new ProjectSearchCondition(keyword, stacks, author, sort);
         return ResponseEntity.ok(projectService.search(condition, pageable));
     }
+
 
     // 인증 컨텍스트에서 memberId 추출 (JwtFilter가 username=memberId로 세팅 — feat/login 규약)
     private Long currentMemberId(Authentication authentication) {

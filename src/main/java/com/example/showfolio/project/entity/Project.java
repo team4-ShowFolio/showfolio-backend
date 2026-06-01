@@ -9,6 +9,10 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
 @Entity
 @Table(name = "project")
 @Getter
@@ -77,6 +81,11 @@ public class Project {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;   // 소프트딜리트 시점 기록
 
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ProjectTech> techStacks = new ArrayList<>();
+
+
     // === 비즈니스 메서드 ===
 
     /** 본인 소유 여부 */
@@ -124,5 +133,18 @@ public class Project {
     public void softDelete() {
         this.deletedAt = java.time.LocalDateTime.now();
     }
+
+    public void addTechStack(String techName) {
+        this.techStacks.add(ProjectTech.of(this, techName));
+    }
+
+    /** 기술스택 전체 교체 (수정 시) — orphanRemoval로 기존 행 삭제 후 재등록 */
+    public void updateTechStacks(List<String> techNames) {
+        this.techStacks.clear();
+        if (techNames != null) {
+            techNames.forEach(this::addTechStack);
+        }
+    }
+
     
 }

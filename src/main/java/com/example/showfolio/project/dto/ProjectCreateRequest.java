@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record ProjectCreateRequest(
         @NotBlank(message = "제목은 필수입니다")
@@ -24,5 +25,6 @@ public record ProjectCreateRequest(
 
         @Size(max = 100) String myRole,
 
-        Visibility visibility
+        Visibility visibility,
+        List<String> stacks
 ) {}
