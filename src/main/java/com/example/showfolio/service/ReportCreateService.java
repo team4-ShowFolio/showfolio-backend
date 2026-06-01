@@ -1,6 +1,6 @@
 package com.example.showfolio.service;
 
-import com.example.showfolio.dto.CreateReportRequest;
+import com.example.showfolio.dto.ReportCreateRequest;
 import com.example.showfolio.entity.Report;
 import com.example.showfolio.event.ReportCreatedEvent;
 import com.example.showfolio.port.ReportValidator;
@@ -21,7 +21,7 @@ public class ReportCreateService implements Reporter {
 
     @Override
     @Transactional
-    public void report(CreateReportRequest request) {
+    public void report(ReportCreateRequest request) {
         // 다른 서비스에서 호출할 가능성이 있으므로, 검증 로직도 작성합니다.
         reportValidator.validateDuplicateReport(request.reporterId(), request.targetId(), request.targetType());
         reportValidator.validateSelfReport(request.reporterId(), request.targetId(), request.targetType());

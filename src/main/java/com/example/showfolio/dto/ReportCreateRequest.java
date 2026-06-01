@@ -5,7 +5,7 @@ import com.example.showfolio.entity.TargetType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public record CreateReportRequest(
+public record ReportCreateRequest(
         // TODO 이후 인증 기능 적용 시 삭제 필요
         @NotNull(message = "신고자 ID는 필수입니다.")
         Long reporterId,

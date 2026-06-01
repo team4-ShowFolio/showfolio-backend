@@ -1,6 +1,6 @@
 package com.example.showfolio.entity;
 
-import com.example.showfolio.dto.CreateReportRequest;
+import com.example.showfolio.dto.ReportCreateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -42,7 +42,7 @@ public class Report {
     @Column(updatable = false)
     private Instant createdAt;
 
-    public static Report from(CreateReportRequest request) {
+    public static Report from(ReportCreateRequest request) {
         Report report = new Report();
         report.reporterId = request.reporterId();
         report.targetId = request.targetId();

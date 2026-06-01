@@ -1,6 +1,6 @@
 package com.example.showfolio.controller;
 
-import com.example.showfolio.dto.CreateReportRequest;
+import com.example.showfolio.dto.ReportCreateRequest;
 import com.example.showfolio.service.ReportCreateService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class ReportController {
 
     @PostMapping
     public ResponseEntity<Void> createReport(
-            @Valid @RequestBody CreateReportRequest request
+            @Valid @RequestBody ReportCreateRequest request
     ) {
         reportCreateService.report(request);
         return ResponseEntity.noContent().build();
