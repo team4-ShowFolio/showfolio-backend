@@ -1,9 +1,11 @@
 package com.example.showfolio.service;
 
+import com.example.showfolio.dto.ReportProcessResponse;
 import com.example.showfolio.dto.ReportResponse;
 import com.example.showfolio.dto.ReportSearchCondition;
 import com.example.showfolio.entity.Report;
 import com.example.showfolio.port.ReportReader;
+import com.example.showfolio.repository.ReportProcessRepository;
 import com.example.showfolio.repository.ReportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReportReadService implements ReportReader {
 
     private final ReportRepository reportRepository;
+    private final ReportProcessRepository reportProcessRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -39,5 +42,13 @@ public class ReportReadService implements ReportReader {
         }
 
         return reportRepository.findAll(spec, pageable).map(ReportResponse::from);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ReportProcessResponse getProcessByReportId(Long reportId) {
+        return reportProcessRepository.findByReportId(reportId)
+                .map(ReportProcessResponse::from)
+                .orElseThrow(() -> new IllegalArgumentException("처리 내역이 존재하지 않습니다."));
     }
 }
