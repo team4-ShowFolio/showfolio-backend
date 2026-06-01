@@ -25,14 +25,6 @@ public class ReportReadService implements ReportReader {
 
     @Override
     @Transactional(readOnly = true)
-    public ReportResponse getById(Long id) {
-        return reportRepository.findById(id)
-                .map(ReportResponse::from)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신고입니다."));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public Page<ReportResponse> getAll(ReportSearchCondition condition, Pageable pageable) {
         Specification<Report> spec = (root, query, cb) -> null;
 
@@ -50,14 +42,6 @@ public class ReportReadService implements ReportReader {
         }
 
         return reportRepository.findAll(spec, pageable).map(ReportResponse::from);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public ReportProcessResponse getProcessByReportId(Long reportId) {
-        return reportProcessRepository.findByReportId(reportId)
-                .map(ReportProcessResponse::from)
-                .orElseThrow(() -> new IllegalArgumentException("처리 내역이 존재하지 않습니다."));
     }
 
     @Override

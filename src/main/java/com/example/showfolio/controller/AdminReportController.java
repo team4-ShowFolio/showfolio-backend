@@ -32,11 +32,6 @@ public class AdminReportController {
         return ResponseEntity.ok(reportReader.getAll(condition, pageable));
     }
 
-    @GetMapping("/{id}/histories")
-    public ResponseEntity<ReportProcessResponse> getReport(@PathVariable Long id) {
-        return ResponseEntity.ok(reportReader.getProcessByReportId(id));
-    }
-
     @GetMapping("/histories")
     public ResponseEntity<Page<ReportProcessResponse>> getProcesses(
             @ModelAttribute ReportProcessSearchCondition condition,
