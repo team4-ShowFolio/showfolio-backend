@@ -40,15 +40,9 @@ public class AdminReportController {
         return ResponseEntity.ok(reportReader.getAllProcesses(condition, pageable));
     }
 
-    @PostMapping("/process")
-    public ResponseEntity<Void> process(@Valid @RequestBody ReportProcessRequest request) {
-        reportProcessor.process(request);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/process")
-    public ResponseEntity<Void> update(@Valid @RequestBody ReportProcessRequest request) {
-        reportProcessor.update(request);
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> update(@PathVariable Long id, @Valid @RequestBody ReportProcessRequest request) {
+        reportProcessor.update(id, request);
         return ResponseEntity.noContent().build();
     }
 }
