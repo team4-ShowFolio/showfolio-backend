@@ -50,6 +50,7 @@ public class AiController {
     }
 
     // 포트폴리오 피드백 by AI
+    // 마이페이지에서 [AI 포트폴리오 피드백] 버튼 클릭 시 호출.
     @PostMapping("/portfolio-feedback")
     public ResponseEntity<PortfolioFeedbackResponse> portfolioFeedback(
 //            @RequestHeader("Authorization") String token

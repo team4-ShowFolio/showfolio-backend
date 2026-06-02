@@ -8,7 +8,7 @@ public class DailyLimitExceededException extends RuntimeException {
 
     public DailyLimitExceededException(int todayUsed, int dailyLimit) {
         super(String.format(
-                "당월 토큰 할당량 한도를 초과했습니다. (사용: %d / 한도: %d)",
+                "당일 토큰 할당량 한도를 초과했습니다. (사용: %d / 한도: %d)",
                 todayUsed, dailyLimit));
         this.todayUsed = todayUsed;
         this.dailyLimit = dailyLimit;

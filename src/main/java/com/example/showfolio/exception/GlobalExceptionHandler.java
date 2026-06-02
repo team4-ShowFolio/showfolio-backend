@@ -72,6 +72,28 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(ex.getMessage()));
     }
 
+    // 등록된 프로젝트가 없거나 특정 프로젝트를 찾을 수 없음
+    // 404 Not Found + Body(ErrorResponse)
+    @ExceptionHandler(ProjectNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleProjectNotFound(
+            ProjectNotFoundException ex) {
+
+        log.warn("프로젝트 조회 실패: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND) // 404
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+
+    // 본인 소유의 프로젝트가 아님 (권한 부족)
+    // 403 Forbidden + Body(ErrorResponse)
+    @ExceptionHandler(ProjectAccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleProjectAccessDenied(
+            ProjectAccessDeniedException ex) {
+
+        log.warn("프로젝트 접근 권한 없음: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN) // 403
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+
     /**
      * 그 외 모든 예외 (AI 서비스 오류, DB 오류, NPE 등)
      */

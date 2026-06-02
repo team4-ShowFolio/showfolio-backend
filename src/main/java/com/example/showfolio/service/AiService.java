@@ -4,13 +4,17 @@ import com.example.showfolio.dto.*;
 import com.example.showfolio.entity.AiUsage;
 import com.example.showfolio.exception.DailyLimitExceededException;
 import com.example.showfolio.exception.MonthlyLimitExceededException;
+import com.example.showfolio.exception.ProjectNotFoundException;
 import com.example.showfolio.prompt.AiPromptType;
 import com.example.showfolio.repository.AiUsageRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +34,9 @@ public class AiService {
 
     private final UserTechStackRepository userTechStackRepository;
     private final FeedRepository feedRepository;
+
+    // Jackson 객체 파서 (스레드 세이프)
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     // 유료 회원 일일 토큰 한도 (input + output 합계 기준), 10만자
     private static final int DAILY_TOKEN_LIMIT = 100_000;
@@ -164,16 +171,15 @@ public class AiService {
 
         // 1. 프로젝트 데이터 수집(프로젝트 + 기술 스택) + 본인 소유 검증
 //        Project project = projectRepository.findByIdWithTechStacks(projectId)
-//                .orElseThrow(() -> new IllegalArgumentException(
-//                        "프로젝트를 찾을 수 없습니다. id=" + projectId));
+//                .orElseThrow(() -> new ProjectNotFoundException(projectId));
 //        if (!project.isOwnedBy(memberId) {
-//            throw new IllegalArgumentException("본인의 프로젝트만 변환할 수 있습니다.");
+//            throw new ProjectAccessDeniedException();
 //        }
 
         // 2. AI 기능 사용 가능 여부 검증 (구독 + 토큰 한도)
         UsageSnapshot snapshot = validateAndGetUsage(memberId);
 
-        // 3. LLM에 보낼 텍스트 전처리
+        // 3. LLM에 보낼 텍스트 전처리 (StringBuilder 힙 메모리 최적화)
         String userInput = buildResumeInput(project);
 
         // 4. LLM 호출 : ChatClient로 Gemini 호출 (메타데이터까지 받기)
@@ -280,17 +286,22 @@ public class AiService {
         List<Project> projects =
                 projectRepository.findAllByMemberIdWithTechStacks(memberId, PageRequest.of(0, 10));
 
+        // 프로젝트 존재 여부 검증 : 프로젝트가 0개인 경우 피드백 생성 불가
+        if (projects == null || projects.isEmpty()) {
+            throw new ProjectNotFoundException();
+        }
+
         // 사용자 피드조회
         // 최신 피드 20개만 가져옴
         List<Feed> feeds =
                 feedRepository.findRecentByUserId(memberId, PageRequest.of(0, 20));
 
 
-        // 3. LLM에 보낼 텍스트 전처리
+        // 3. LLM에 보낼 텍스트 전처리 (StringBuilder 힙 메모리 최적화)
         String portfolioText = buildPortfolioText(
                 member, userTechStacks, projects, feeds);
 
-        // 4. LLM 호출 : ChatClient로 Gemini 호출 (메타데이터까지 받기)
+        // 4. LLM 호출 : ChatClient로 Gemini 호출 (메타데이터까지 받기), JSON 스트링 획득
         ChatResponse response = chatClientBuilder.build()
                 .prompt()
                 .system(AiPromptType.PORTFOLIO_FEEDBACK.system())
@@ -298,18 +309,30 @@ public class AiService {
                 .call()
                 .chatResponse();
 
-        // 5. 결과 + 토큰 사용량 추출
-        String feedback = response.getResult().getOutput().getText();
+        // 5. AI API 원본 결과 텍스트 추출 (JSON 문자열)
+        String rawJsonResponse = response.getResult().getOutput().getText();
+
+        // 6. 토큰 사용량 추출
         Usage usage = response.getMetadata().getUsage();
         int inputTokens = usage.getPromptTokens();
         int outputTokens = usage.getCompletionTokens();
 
-        // 6. AI API 호출 결과 사용량 기록 + 응답 조립
+        // 7. JSON 문자열 파싱 공정 (Java Object Mapping)
+        FeedbackContentDto feedbackContent;
+        try {
+            // LLM이 보낸 JSON 포맷 문자열을 우리가 설계한 DTO 구조체 객체로 결합
+            feedbackContent = objectMapper.readValue(rawJsonResponse, FeedbackContentDto.class);
+        } catch (JsonProcessingException e) {
+            log.error("AI 응답 JSON 구조 역직렬화 실패. 원본 데이터: {}", rawJsonResponse, e);
+            throw new IllegalStateException("AI가 생성한 리포트의 규격 형식이 올바르지 않습니다. 다시 시도해 주세요.", e);
+        }
+
+        // 8. AI API 호출 결과 사용량 기록 + 응답 조립
         TokenUsageInfo usageInfo = recordUsageAndCalculate(
                 memberId, "PORTFOLIO_FEEDBACK", snapshot, inputTokens, outputTokens);
 
         return new PortfolioFeedbackResponse(
-                feedback, usageInfo.daily(), usageInfo.monthly());
+                feedbackContent, usageInfo.daily(), usageInfo.monthly());
     }
 
     // 포트폴리오 피드백용 LLM에 보낼 텍스트 전처리
