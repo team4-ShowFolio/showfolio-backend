@@ -1,6 +1,8 @@
 package com.example.showfolio.dto;
 
-import java.time.Instant;
+import com.example.showfolio.mock.Role;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record AdminMemberResponse(
@@ -8,11 +10,11 @@ public record AdminMemberResponse(
         String nickname,
         String username,
         String email,
-        String role,
+        Role role,
         String status,
-        Instant joinDate,
+        LocalDateTime joinDate,
         List<String> techStack,
-        int feedCount,
+        long feedCount,
         int commentCount
 ) {
 }
