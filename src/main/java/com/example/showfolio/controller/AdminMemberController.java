@@ -19,6 +19,13 @@ public class AdminMemberController {
 
     private final AdminMemberService adminMemberService;
 
+    @GetMapping("/{id}")
+    public ResponseEntity<AdminMemberResponse> getById(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(adminMemberService.getById(id));
+    }
+
     @GetMapping
     public ResponseEntity<Page<AdminMemberResponse>> getAll(
             MemberSearchCondition condition,

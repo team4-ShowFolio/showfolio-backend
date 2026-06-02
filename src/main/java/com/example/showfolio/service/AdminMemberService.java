@@ -29,6 +29,10 @@ public class AdminMemberService {
         statusUpdater.updateStatus(id, request.status());
     }
 
+    public AdminMemberResponse getById(Long id) {
+        return reader.getById(id);
+    }
+
     public Page<AdminMemberResponse> getAll(MemberSearchCondition condition, Pageable pageable) {
         return reader.getAll(condition, pageable);
     }
