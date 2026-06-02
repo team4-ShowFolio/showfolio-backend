@@ -6,6 +6,6 @@ import java.util.List;
 public record ProjectSearchCondition(
         String keyword,
         List<String> stacks,
-        Long author,    // memberId
+        List<Long> authorIds,    // memberId
         String sort     // latest | likes
 ) {}

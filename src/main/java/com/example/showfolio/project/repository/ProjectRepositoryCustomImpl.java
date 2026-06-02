@@ -36,7 +36,7 @@ public class ProjectRepositoryCustomImpl implements ProjectRepositoryCustom {
                 .where(
                         project.visibility.eq(Visibility.PUBLIC),
                         keywordContains(condition.keyword()),
-                        authorEq(condition.author()),
+                        authorIn(condition.authorIds()),
                         stacksIn(condition.stacks())
                 )
                 .orderBy(sortOrder(condition.sort()))
@@ -51,7 +51,7 @@ public class ProjectRepositoryCustomImpl implements ProjectRepositoryCustom {
                 .where(
                         project.visibility.eq(Visibility.PUBLIC),
                         keywordContains(condition.keyword()),
-                        authorEq(condition.author()),
+                        authorIn(condition.authorIds()),
                         stacksIn(condition.stacks())
                 )
                 .fetchOne();
@@ -69,9 +69,11 @@ public class ProjectRepositoryCustomImpl implements ProjectRepositoryCustom {
                 .or(project.description.containsIgnoreCase(keyword));
     }
 
-    // 작성자(memberId) 일치
-    private BooleanExpression authorEq(Long author) {
-        return author == null ? null : QProject.project.memberId.eq(author);
+    // 작성자(memberId 목록) 필터
+    private BooleanExpression authorIn(List<Long> authorIds) {
+        return (authorIds == null || authorIds.isEmpty())
+                ? null
+                : QProject.project.memberId.in(authorIds);
     }
 
     // 기술스택 중 하나라도 포함 (OR)

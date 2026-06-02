@@ -88,9 +88,10 @@ class ProjectControllerTest {
 
     @Test
     void 검색_200() throws Exception {
-        given(projectService.search(any(), any(Pageable.class)))
+        given(projectService.search(any(), any(), any(), any(), any(Pageable.class)))
                 .willReturn(new PageImpl<>(List.of(sample())));
-        mockMvc.perform(get("/api/projects/search").param("keyword", "포트").param("sort", "likes"))
+        mockMvc.perform(get("/api/projects/search")
+                        .param("keyword", "포트").param("author", "jinwook").param("sort", "likes"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value(1));
     }

@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.StringUtils;
+
 
 
 
@@ -100,10 +102,20 @@ public class ProjectService {
     }
 
     /** 검색 / 정렬 / 페이징 (PUBLIC만) */
-    public Page<ProjectResponse> search(ProjectSearchCondition condition, Pageable pageable) {
+    public Page<ProjectResponse> search(String keyword, List<String> stacks,
+                                        String authorNickname, String sort, Pageable pageable) {
+        List<Long> authorIds = null;
+        if (StringUtils.hasText(authorNickname)) {
+            authorIds = projectRepository.findMemberIdsByNickname(authorNickname);
+            if (authorIds.isEmpty()) {
+                return Page.empty(pageable);   // 해당 닉네임 작성자 없음 → 빈 결과
+            }
+        }
+        ProjectSearchCondition condition = new ProjectSearchCondition(keyword, stacks, authorIds, sort);
         return projectRepository.search(condition, pageable)
                 .map(ProjectResponse::from);
     }
+
 
     /** 좋아요 토글 (등록/취소) */
     @Transactional

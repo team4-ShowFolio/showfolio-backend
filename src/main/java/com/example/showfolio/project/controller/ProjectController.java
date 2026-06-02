@@ -4,7 +4,6 @@ import com.example.showfolio.project.dto.ProjectCreateRequest;
 import com.example.showfolio.project.dto.ProjectResponse;
 import com.example.showfolio.project.dto.ProjectUpdateRequest;
 import com.example.showfolio.project.service.ProjectService;
-import com.example.showfolio.project.dto.ProjectSearchCondition;
 import com.example.showfolio.project.dto.ProjectLikeResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -85,12 +84,12 @@ public class ProjectController {
     public ResponseEntity<Page<ProjectResponse>> search(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) List<String> stacks,
-            @RequestParam(required = false) Long author,
+            @RequestParam(required = false) String author,
             @RequestParam(required = false, defaultValue = "latest") String sort,
             @PageableDefault(size = 20) Pageable pageable) {
-        ProjectSearchCondition condition = new ProjectSearchCondition(keyword, stacks, author, sort);
-        return ResponseEntity.ok(projectService.search(condition, pageable));
+        return ResponseEntity.ok(projectService.search(keyword, stacks, author, sort, pageable));
     }
+
 
 
     // 인증 컨텍스트에서 memberId 추출 (JwtFilter가 username=memberId로 세팅 — feat/login 규약)
