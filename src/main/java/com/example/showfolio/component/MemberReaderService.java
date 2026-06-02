@@ -3,25 +3,22 @@ package com.example.showfolio.component;
 import com.example.showfolio.dto.AdminMemberResponse;
 import com.example.showfolio.dto.MemberSearchCondition;
 import com.example.showfolio.port.MemberReader;
-import com.example.showfolio.port.ReportCounter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class MemberReaderService implements MemberReader {
 
-    private final ReportCounter reportCounter;
-
     @Override
     public AdminMemberResponse getById(Long userId) {
-        // TODO Member 기능 병합 후 실제 회원 정보(nickname, createdAt) 조회로 대체
-        int reportCount = (int) reportCounter.countByTargetUserId(userId);
-        return new AdminMemberResponse(userId, "TEST_NICKNAME", reportCount, Instant.now());
+        // TODO Member 기능 병합 후 실제 회원 정보 조회로 대체
+        return new AdminMemberResponse(userId, "TEST_NICKNAME", null, null, null, null, Instant.now(), List.of(), 0, 0);
     }
 
     @Override
