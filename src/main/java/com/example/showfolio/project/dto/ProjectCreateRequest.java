@@ -13,6 +13,7 @@ public record ProjectCreateRequest(
         String title,
 
         String description,
+        String troubleShooting,
 
         @Size(max = 500) String githubUrl,
         @Size(max = 500) String deployUrl,

@@ -13,6 +13,7 @@ public record ProjectUpdateRequest(
         @Size(max = 100) String title,
 
         String description,
+        String troubleShooting,
         @Size(max = 500) String githubUrl,
         @Size(max = 500) String deployUrl,
         LocalDate startDate,

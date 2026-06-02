@@ -34,6 +34,9 @@ public class Project {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "trouble_shooting", columnDefinition = "TEXT")
+    private String troubleShooting;
+
     @Column(name = "github_url", length = 500)
     private String githubUrl;
 
@@ -100,9 +103,10 @@ public class Project {
     /** 프로젝트 정보 수정 (Dirty Checking) */
     public void update(String title, String description, String githubUrl, String deployUrl,
                        LocalDate startDate, LocalDate endDate, boolean isTeam,
-                       Integer teamSize, String myRole, Visibility visibility) {
+                       Integer teamSize, String myRole, Visibility visibility, String troubleShooting) {
         this.title = title;
         this.description = description;
+        this.troubleShooting = troubleShooting;
         this.githubUrl = githubUrl;
         this.deployUrl = deployUrl;
         this.startDate = startDate;

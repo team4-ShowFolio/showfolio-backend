@@ -40,6 +40,7 @@ public class ProjectService {
                 .memberId(memberId)
                 .title(req.title())
                 .description(req.description())
+                .troubleShooting(req.troubleShooting())
                 .githubUrl(req.githubUrl())
                 .deployUrl(req.deployUrl())
                 .startDate(req.startDate())
@@ -74,7 +75,7 @@ public class ProjectService {
         validateOwner(project, memberId);
         project.update(req.title(), req.description(), req.githubUrl(), req.deployUrl(),
                 req.startDate(), req.endDate(), req.isTeam(), req.teamSize(),
-                req.myRole(), req.visibility());
+                req.myRole(), req.visibility(), req.troubleShooting());
         project.updateTechStacks(req.stacks());
 
         return ProjectResponse.from(project);

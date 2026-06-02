@@ -38,7 +38,7 @@ class ProjectControllerTest {
 
     private ProjectResponse sample() {
         return new ProjectResponse(
-                1L, 7L, "포트폴리오", "설명", "https://gh", "https://deploy",
+                1L, 7L, "포트폴리오", "설명", "트러블슈팅 내용", "https://gh", "https://deploy",
                 LocalDate.of(2026, 3, 1), LocalDate.of(2026, 5, 1),
                 true, 4, "백엔드", Visibility.PUBLIC, 10, 3,
                 LocalDateTime.now(), LocalDateTime.now(),
