@@ -221,4 +221,22 @@ public class AuthService {
         member.setDeletedAt(LocalDateTime.now());
         memberRepository.save(member);
     }
+
+    // 이메일 중복확인
+    public boolean checkEmail(String email){
+        return memberRepository.existsByEmailAndDeletedAtIsNull(email);
+    }
+
+    // 닉네임 중복확인
+    public boolean checkNickname(String nickname){
+        return memberRepository.existsByNicknameAndDeletedAtIsNull(nickname);
+    }
+
+    //다른 유저 프로필 조회
+    @Transactional(readOnly = true)
+    public MemberResponse getMemberProfile(Long memberId){
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(()->new RuntimeException("존재하지 않는 유저입니다."));
+        return new MemberResponse(member);
+    }
 }

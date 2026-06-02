@@ -23,4 +23,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     // 탈퇴한 유저 제외하고 이메일 중복 확인
     boolean existsByEmailAndDeletedAtIsNull(String email);
+
+
 }

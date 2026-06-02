@@ -35,6 +35,9 @@ public class SecurityConfig {
                                 "/api/auth/signup",
                                 "/api/auth/login",
                                 "/api/auth/refresh",
+                                "/api/auth/check/email",
+                                "/api/auth/check/nickname",
+                                "/api/auth/profile/**",
                                 "/login/oauth2/**",   // ← 추가!
                                 "/oauth2/**",         // ← 추가!
                                 "/error"

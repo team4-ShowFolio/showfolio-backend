@@ -95,4 +95,28 @@ public class AuthController {
         authService.deleteAccount(memberId);
         return ResponseEntity.ok("회원탈퇴 성공");
     }
+
+    //이메일 중복 확인
+    @GetMapping("/check/email")
+    public ResponseEntity<?> checkEmail(@RequestParam String email){
+        boolean isDuplicate = authService.checkEmail(email);
+        return ResponseEntity.ok(isDuplicate ?
+                "이미 사용중인 이메일입니다." : "사용 가능한 이메일입니다.");
+    }
+
+    //닉네임 중복확인
+    @GetMapping("/check/nickname")
+    public ResponseEntity<?> checkNickname(@RequestParam String nickname){
+        boolean isDuplicate = authService.checkNickname(nickname);
+        return ResponseEntity.ok(isDuplicate ?
+                "이미 사용중인 닉네임입니다." : "사용 가능한 닉네임입니다.");
+    }
+
+    //다른 유저 프로프리 조회
+    @GetMapping("/profile/{memberId}")
+    public ResponseEntity<?> getMemberProfile(
+            @PathVariable Long memberId ) {
+        return ResponseEntity.ok(authService.getMemberProfile(memberId));
+    }
+
 }
