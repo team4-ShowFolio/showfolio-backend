@@ -25,8 +25,11 @@ public class AiService {
     private final ChatClient.Builder chatClientBuilder;
     private final AiUsageRepository aiUsageRepository;
 
-//    private final MemberRepository memberRepository;
-//    private final ProjectRepository projectRepository;
+    private final MemberRepository memberRepository;
+    private final ProjectRepository projectRepository;
+
+    private final UserTechStackRepository userTechStackRepository;
+    private final FeedRepository feedRepository;
 
     // 유료 회원 일일 토큰 한도 (input + output 합계 기준), 10만자
     private static final int DAILY_TOKEN_LIMIT = 100_000;
@@ -159,7 +162,7 @@ public class AiService {
     @Transactional
     public ResumeConvertResponse convertToResume(Long memberId, Long projectId) {
 
-        // 1. 프로젝트 조회 + 본인 소유 검증
+        // 1. 프로젝트 데이터 수집(프로젝트 + 기술 스택) + 본인 소유 검증
 //        Project project = projectRepository.findByIdWithTechStacks(projectId)
 //                .orElseThrow(() -> new IllegalArgumentException(
 //                        "프로젝트를 찾을 수 없습니다. id=" + projectId));
@@ -198,52 +201,63 @@ public class AiService {
 
     // 이력서용 LLM에 보낼 텍스트 전처리
     // 프로젝트 데이터를 LLM이 이해하기 좋은 텍스트로 조립
-//    private String buildResumeInput(Project project) {
-//        StringBuilder sb = new StringBuilder();
+    private String buildResumeInput(Project project) {
+        StringBuilder sb = new StringBuilder();
 
-          // 프로젝트 명
-//        sb.append("프로젝트명: ").append(project.getTitle()).append("\n");
-//
-          // 설명
- //        sb.append("설명: ").append(project.getDescription()).append("\n");
-//
-//        // 기간 정보 (둘 다 있을 때만)
-//        if (project.getStartDate() != null && project.getEndDate() != null) {
-//            sb.append("기간: ")
-//                    .append(project.getStartDate()).append(" ~ ").append(project.getEndDate())
-//                    .append("\n");
-//        }
-//
-//        // 협업 정보 (isTeam이 boolean 원시 타입이므로 if-else로 처리)
-//        if (project.isTeam()) {
-//            sb.append("진행 방식: 팀 프로젝트");
-//            if (project.getTeamSize() != null) {
-//                sb.append(" (").append(project.getTeamSize()).append("명)");
-//            }
-//            sb.append("\n");
-//
-//            if (project.getMyRole() != null && !project.getMyRole().isBlank()) {
-//                sb.append("담당 역할: ").append(project.getMyRole()).append("\n");
-//            }
-//        } else if (Boolean.FALSE.equals(project.getIsTeam())) {
-//            sb.append("진행 방식: 개인 프로젝트\n");
-//        }
+//     프로젝트 명
+        sb.append("프로젝트명: ").append(project.getTitle()).append("\n");
 
-//    // 기술 스택
-//    // findByIdWithTechStacks에서 JPQL쿼리을 이용하여 프로젝트조회시 한번에 같이 가져옴)
-//    List<ProjectTech> techStacks = project.getTechStacks();
-//        if (techStacks != null && !techStacks.isEmpty()) {
-//        String techNames = techStacks.stream()
-//                .map(ProjectTech::getTechName)
-//                .collect(Collectors.joining(", "));
-//        sb.append("사용 기술: ").append(techNames).append("\n");
-//    }
-//
-//        return sb.toString();
-//    }
+//     설명
+            sb.append("설명: ").append(project.getDescription()).append("\n");
+
+        // 기간 정보 (둘 다 있을 때만)
+        if (project.getStartDate() != null && project.getEndDate() != null) {
+            sb.append("기간: ")
+                    .append(project.getStartDate()).append(" ~ ").append(project.getEndDate())
+                    .append("\n");
+        }
+
+        // 협업 정보 (isTeam이 boolean 원시 타입이므로 if-else로 처리)
+        if (project.isTeam()) {
+            sb.append("진행 방식: 팀 프로젝트");
+            if (project.getTeamSize() != null) {
+                sb.append(" (").append(project.getTeamSize()).append("명)");
+            }
+            sb.append("\n");
+
+            if (project.getMyRole() != null && !project.getMyRole().isBlank()) {
+                sb.append("담당 역할: ").append(project.getMyRole()).append("\n");
+            }
+        } else if (Boolean.FALSE.equals(project.getIsTeam())) {
+            sb.append("진행 방식: 개인 프로젝트\n");
+        }
+
+    // 기술 스택
+    // findByIdWithTechStacks에서 JPQL쿼리을 이용하여 프로젝트조회시 한번에 같이 가져옴)
+    List<ProjectTech> techStacks = project.getTechStacks();
+        if (techStacks != null && !techStacks.isEmpty()) {
+        String techNames = techStacks.stream()
+                .map(ProjectTech::getTechName)
+                .collect(Collectors.joining(", "));
+        sb.append("사용 기술: ").append(techNames).append("\n");
+    }
+
+        return sb.toString();
+    }
 
     //===================================================================================================//
 
+    // 포트폴리오 피드백용 (회원의 모든 프로젝트 + 각 기술 스택), 최근 N개 조회
+//    @Query("SELECT p FROM Project p " +
+//            "LEFT JOIN FETCH p.techStacks " +
+//            "WHERE p.memberId = :memberId " +
+//            "ORDER BY p.createdAt DESC")
+//    List<Project> findAllByMemberIdWithTechStacks(@Param("memberId") Long memberId, Pageable pageable);
+
+    // 포트폴리오 피드백용, 최근 N개 조회
+//    @Query("SELECT f FROM Feed f WHERE f.user.id = :userId " +
+//            "ORDER BY f.createdAt DESC")
+//    List<Feed> findRecentByUserId(@Param("userId") Long userId, Pageable pageable);
     // 프토폴리오 피드백
     @Transactional
     public PortfolioFeedbackResponse generatePortfolioFeedback(
@@ -252,10 +266,32 @@ public class AiService {
         // 1. AI 기능 사용 가능 여부 검증 (구독 + 토큰 한도)
         UsageSnapshot snapshot = validateAndGetUsage(memberId);
 
-        // 2. LLM에 보낼 텍스트 전처리
-        String portfolioText = buildPortfolioText();
+        // 2. 데이터 수집 - 4개의 쿼리
+        // 1차캐시에서 멤버정보 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
 
-        // 3. LLM 호출 : ChatClient로 Gemini 호출 (메타데이터까지 받기)
+        // 사용자 기술스택 조회
+        List<UserTechStack> userTechStacks =
+                userTechStackRepository.findByMemberId(memberId);
+        userTechStackRepository.findByUserId(memberId);?
+
+        // 사용자 프로젝트 + 프로젝트별 기술스택 조회
+        // 최신 프로젝트 10개만 가져옴
+        List<Project> projects =
+                projectRepository.findAllByMemberIdWithTechStacks(memberId, PageRequest.of(0, 10));
+
+        // 사용자 피드조회
+        // 최신 피드 20개만 가져옴
+        List<Feed> feeds =
+                feedRepository.findRecentByUserId(memberId, PageRequest.of(0, 20));
+
+
+        // 3. LLM에 보낼 텍스트 전처리
+        String portfolioText = buildPortfolioText(
+                member, userTechStacks, projects, feeds);
+
+        // 4. LLM 호출 : ChatClient로 Gemini 호출 (메타데이터까지 받기)
         ChatResponse response = chatClientBuilder.build()
                 .prompt()
                 .system(AiPromptType.PORTFOLIO_FEEDBACK.system())
@@ -264,13 +300,13 @@ public class AiService {
                 .call()
                 .chatResponse();
 
-        // 4. 결과 + 토큰 사용량 추출
+        // 5. 결과 + 토큰 사용량 추출
         String feedback = response.getResult().getOutput().getText();
         Usage usage = response.getMetadata().getUsage();
         int inputTokens = usage.getPromptTokens();
         int outputTokens = usage.getCompletionTokens();
 
-        // 5. AI API 호출 결과 사용량 기록 + 응답 조립
+        // 6. AI API 호출 결과 사용량 기록 + 응답 조립
         TokenUsageInfo usageInfo = recordUsageAndCalculate(
                 memberId, "PORTFOLIO_FEEDBACK", snapshot, inputTokens, outputTokens);
 
@@ -279,31 +315,70 @@ public class AiService {
     }
 
     // 포트폴리오 피드백용 LLM에 보낼 텍스트 전처리
-//    // 포트폴리오 데이터를 LLM이 이해하기 좋은 텍스트로 조립
-    private String buildPortfolioText(PortfolioFeedbackRequest request) {
+    // 포트폴리오 데이터를 LLM이 이해하기 좋은 텍스트로 조립
+    private String buildPortfolioText(
+            Member member,
+            List<UserTechStack> userTechStacks,
+            List<Project> projects,
+            List<Feed> feeds
+    ) {
         StringBuilder sb = new StringBuilder();
 
+        // 1. 사용자 프로필
         sb.append("=== 개발자 프로필 ===\n");
-        sb.append("자기소개: ").append(orEmpty(request.bio())).append("\n");
-        sb.append("주요 기술: ").append(orEmpty(request.techStack())).append("\n\n");
+        if (member.getBio() != null && !member.getBio().isBlank()) {
+            sb.append("자기소개: ").append(member.getBio()).append("\n");
+        }
 
-        sb.append("=== 프로젝트 (총 ").append(request.projects().size()).append("개) ===\n\n");
+        // 2. 사용자 보유 기술 스택
+        if (!userTechStacks.isEmpty()) {
+            String techList = userTechStacks.stream()
+                    .map(UserTechStack::getTechName)
+                    .collect(Collectors.joining(", "));
+            sb.append("보유 기술: ").append(techList).append("\n");
+        }
+        sb.append("\n");
 
-        var projects = request.projects();
+        // 3. 프로젝트들 (각각 기술 스택 포함)
+        sb.append("=== 프로젝트 (총 ").append(projects.size()).append("개) ===\n\n");
+
         for (int i = 0; i < projects.size(); i++) {
-            var p = projects.get(i);
-            sb.append("[프로젝트 ").append(i + 1).append("] ").append(p.title()).append("\n");
-            sb.append("- 사용 기술: ").append(orEmpty(p.projectTechStack())).append("\n");
-            sb.append("- 설명: ").append(p.description()).append("\n\n");
+            Project p = projects.get(i);
+            sb.append("[").append(i + 1).append("] ").append(p.getTitle()).append("\n");
+            sb.append("- 설명: ").append(p.getDescription()).append("\n");
+
+            // fetch join으로 함께 가져온 기술 스택 사용 (추가 쿼리 X)
+            if (!p.getTechStacks().isEmpty()) {
+                String projectTechs = p.getTechStacks().stream()
+                        .map(ProjectTech::getTechName)
+                        .collect(Collectors.joining(", "));
+                sb.append("- 사용 기술: ").append(projectTechs).append("\n");
+            }
+
+            if (p.getStartDate() != null && p.getEndDate() != null) {
+                sb.append("- 기간: ").append(p.getStartDate())
+                        .append(" ~ ").append(p.getEndDate()).append("\n");
+            }
+            sb.append("\n");
+        }
+
+        // 4. 피드 (최근 활동)
+        if (!feeds.isEmpty()) {
+            sb.append("=== 최근 활동 피드 (").append(feeds.size()).append("개) ===\n");
+            for (Feed f : feeds) {
+                if (f.getContent() != null && !f.getContent().isBlank()) {
+                    // 너무 긴 피드는 잘라서
+                    String content = f.getContent();
+                    if (content.length() > 200) {
+                        content = content.substring(0, 200) + "...";
+                    }
+                    sb.append("- ").append(content).append("\n");
+                }
+            }
         }
 
         return sb.toString();
     }
-
-    private String orEmpty(String s) {
-        return s == null ? "(미입력)" : s;
-    }
-
 
     //===================================================================================================//
 }
