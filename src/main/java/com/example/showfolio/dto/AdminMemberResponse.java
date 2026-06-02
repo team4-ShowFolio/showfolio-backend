@@ -1,12 +1,18 @@
 package com.example.showfolio.dto;
 
 import java.time.Instant;
+import java.util.List;
 
-// TODO Member 기능 병합되면 필드 추가 필요
 public record AdminMemberResponse(
         Long id,
         String nickname,
-        int reportCount,
-        Instant createdAt
+        String username,
+        String email,
+        String role,
+        String status,
+        Instant joinDate,
+        List<String> techStack,
+        int feedCount,
+        int commentCount
 ) {
 }
