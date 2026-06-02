@@ -185,7 +185,8 @@ public class AiService {
                 resumeText, usageInfo.daily(), usageInfo.monthly());
     }
 
-    // Project 엔티티에서 AI에게 보낼 텍스트 전처리
+    // 이력서용 LLM에 보낼 텍스트 전처리
+    // 프로젝트 데이터를 LLM이 이해하기 좋은 텍스트로 조립
 //    private String buildResumeInput(Project project) {
 //        StringBuilder sb = new StringBuilder();
 //
@@ -234,6 +235,7 @@ public class AiService {
         ChatResponse response = chatClientBuilder.build()
                 .prompt()
                 .system(AiPromptType.PORTFOLIO_FEEDBACK.system())
+                .user("todo:change userinput")
 //                .user(portfolioText)
                 .call()
                 .chatResponse();
@@ -252,6 +254,7 @@ public class AiService {
                 feedback, usageInfo.daily(), usageInfo.monthly());
     }
 
+    // 포트폴리오 피드백용 LLM에 보낼 텍스트 전처리
 //    // 포트폴리오 데이터를 LLM이 이해하기 좋은 텍스트로 조립
 //    private String buildPortfolioText(PortfolioFeedbackRequest request) {
 //        StringBuilder sb = new StringBuilder();
