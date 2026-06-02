@@ -9,6 +9,6 @@ import jakarta.validation.constraints.Size;
 public record DescriptionImproveRequest(
 
         @NotBlank(message = "프로젝트 설명은 필수 항목입니다.") // 공백, null 방지
-        @Size(max = 5000, message = "설명은 최대 2000자까지 입력 가능합니다.") // DB TEXT 타입 오버플로우 방지
+        @Size(max = 5000, message = "설명은 최대 5000자까지 입력 가능합니다.") // DB TEXT 타입 오버플로우 방지
         String description
 ) {}
