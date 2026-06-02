@@ -25,6 +25,9 @@ public class AiService {
     private final ChatClient.Builder chatClientBuilder;
     private final AiUsageRepository aiUsageRepository;
 
+//    private final MemberRepository memberRepository;
+//    private final ProjectRepository projectRepository;
+
     // 유료 회원 일일 토큰 한도 (input + output 합계 기준), 10만자
     private static final int DAILY_TOKEN_LIMIT = 100_000;
     // 유료 회원 월별 토큰 한도, 200만자
@@ -108,7 +111,9 @@ public class AiService {
     private record TokenUsageInfo(
             TokenUsage.Daily daily,
             TokenUsage.Monthly monthly
-    ) { }
+    ) {
+
+    }
 
     //===================================================================================================//
 
@@ -144,15 +149,21 @@ public class AiService {
 
     //===================================================================================================//
 
+// 이력서 변환에서 필요한 정보인 프로젝트와 기술 스택을 한 번에 가져옴.
+//    @Query("SELECT p FROM Project p " +
+//            "LEFT JOIN FETCH p.techStacks " +
+//            "WHERE p.id = :id")
+//    Optional<Project> findByIdWithTechStacks(@Param("id") Long id);
+
     // 이력서용 문장 자동 변환
     @Transactional
     public ResumeConvertResponse convertToResume(Long memberId, Long projectId) {
 
         // 1. 프로젝트 조회 + 본인 소유 검증
-//        Project project = projectRepository.findById(projectId)
+//        Project project = projectRepository.findByIdWithTechStacks(projectId)
 //                .orElseThrow(() -> new IllegalArgumentException(
 //                        "프로젝트를 찾을 수 없습니다. id=" + projectId));
-//        if (!project.getUserId().equals(memberId)) {
+//        if (!project.isOwnedBy(memberId) {
 //            throw new IllegalArgumentException("본인의 프로젝트만 변환할 수 있습니다.");
 //        }
 
@@ -189,19 +200,22 @@ public class AiService {
     // 프로젝트 데이터를 LLM이 이해하기 좋은 텍스트로 조립
 //    private String buildResumeInput(Project project) {
 //        StringBuilder sb = new StringBuilder();
-//
+
+          // 프로젝트 명
 //        sb.append("프로젝트명: ").append(project.getTitle()).append("\n");
-//        sb.append("설명: ").append(project.getDescription()).append("\n");
 //
-//        // 기간 정보
+          // 설명
+ //        sb.append("설명: ").append(project.getDescription()).append("\n");
+//
+//        // 기간 정보 (둘 다 있을 때만)
 //        if (project.getStartDate() != null && project.getEndDate() != null) {
 //            sb.append("기간: ")
 //                    .append(project.getStartDate()).append(" ~ ").append(project.getEndDate())
 //                    .append("\n");
 //        }
 //
-//        // 협업 정보
-//        if (Boolean.TRUE.equals(project.getIsTeam())) {
+//        // 협업 정보 (isTeam이 boolean 원시 타입이므로 if-else로 처리)
+//        if (project.isTeam()) {
 //            sb.append("진행 방식: 팀 프로젝트");
 //            if (project.getTeamSize() != null) {
 //                sb.append(" (").append(project.getTeamSize()).append("명)");
@@ -214,6 +228,16 @@ public class AiService {
 //        } else if (Boolean.FALSE.equals(project.getIsTeam())) {
 //            sb.append("진행 방식: 개인 프로젝트\n");
 //        }
+
+//    // 기술 스택
+//    // findByIdWithTechStacks에서 JPQL쿼리을 이용하여 프로젝트조회시 한번에 같이 가져옴)
+//    List<ProjectTech> techStacks = project.getTechStacks();
+//        if (techStacks != null && !techStacks.isEmpty()) {
+//        String techNames = techStacks.stream()
+//                .map(ProjectTech::getTechName)
+//                .collect(Collectors.joining(", "));
+//        sb.append("사용 기술: ").append(techNames).append("\n");
+//    }
 //
 //        return sb.toString();
 //    }
@@ -229,7 +253,7 @@ public class AiService {
         UsageSnapshot snapshot = validateAndGetUsage(memberId);
 
         // 2. LLM에 보낼 텍스트 전처리
-//        String portfolioText = buildPortfolioText();
+        String portfolioText = buildPortfolioText();
 
         // 3. LLM 호출 : ChatClient로 Gemini 호출 (메타데이터까지 받기)
         ChatResponse response = chatClientBuilder.build()
@@ -256,30 +280,31 @@ public class AiService {
 
     // 포트폴리오 피드백용 LLM에 보낼 텍스트 전처리
 //    // 포트폴리오 데이터를 LLM이 이해하기 좋은 텍스트로 조립
-//    private String buildPortfolioText(PortfolioFeedbackRequest request) {
-//        StringBuilder sb = new StringBuilder();
-//
-//        sb.append("=== 개발자 프로필 ===\n");
-//        sb.append("자기소개: ").append(orEmpty(request.bio())).append("\n");
-//        sb.append("주요 기술: ").append(orEmpty(request.techStack())).append("\n\n");
-//
-//        sb.append("=== 프로젝트 (총 ").append(request.projects().size()).append("개) ===\n\n");
-//
-//        var projects = request.projects();
-//        for (int i = 0; i < projects.size(); i++) {
-//            var p = projects.get(i);
-//            sb.append("[프로젝트 ").append(i + 1).append("] ").append(p.title()).append("\n");
-//            sb.append("- 사용 기술: ").append(orEmpty(p.projectTechStack())).append("\n");
-//            sb.append("- 설명: ").append(p.description()).append("\n\n");
-//        }
-//
-//        return sb.toString();
-//    }
-//
-//    private String orEmpty(String s) {
-//        return s == null ? "(미입력)" : s;
-//    }
+    private String buildPortfolioText(PortfolioFeedbackRequest request) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("=== 개발자 프로필 ===\n");
+        sb.append("자기소개: ").append(orEmpty(request.bio())).append("\n");
+        sb.append("주요 기술: ").append(orEmpty(request.techStack())).append("\n\n");
+
+        sb.append("=== 프로젝트 (총 ").append(request.projects().size()).append("개) ===\n\n");
+
+        var projects = request.projects();
+        for (int i = 0; i < projects.size(); i++) {
+            var p = projects.get(i);
+            sb.append("[프로젝트 ").append(i + 1).append("] ").append(p.title()).append("\n");
+            sb.append("- 사용 기술: ").append(orEmpty(p.projectTechStack())).append("\n");
+            sb.append("- 설명: ").append(p.description()).append("\n\n");
+        }
+
+        return sb.toString();
+    }
+
+    private String orEmpty(String s) {
+        return s == null ? "(미입력)" : s;
+    }
 
 
     //===================================================================================================//
 }
+
