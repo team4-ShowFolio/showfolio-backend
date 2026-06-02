@@ -18,19 +18,16 @@ import java.nio.charset.StandardCharsets;
 public class AiController {
 
     private final AiService aiService;
-//    private final JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
     // 프로젝트 설명 개선 by AI
     // 프로젝트 등록 페이지에서 [프로젝트 설명 개선] 버튼 클릭 시 호출.
     @PostMapping("/improve/description")
     public ResponseEntity<DescriptionImproveResponse> improveDescription(
-//            @RequestHeader("Authorization") String token,
+            @RequestHeader("Authorization") String token,
             @Valid @RequestBody DescriptionImproveRequest request) {
 
-        // TODO: 인증 통합 후 실제 회원 ID 추출 로직으로 교체
-        Long memberId = 1L;  // 임시값. 테스트 진행용
-
-//        Long memberId = jwtUtil.getUserId(token.substring(7));
+        Long memberId = jwtUtil.getUserId(token.substring(7));
 
         return ResponseEntity.ok(aiService.improveDescription(memberId, request));
     }
@@ -40,13 +37,10 @@ public class AiController {
     // 백엔드가 projectId로 DB에서 프로젝트 정보를 조회해 AI 변환.
     @PostMapping("/convert/resume/{projectId}")
     public ResponseEntity<ResumeConvertResponse> convertToResume(
-//            @RequestHeader("Authorization") String token,
+            @RequestHeader("Authorization") String token,
             @PathVariable Long projectId) {
 
-        // TODO: 인증 통합 후 실제 회원 ID 추출 로직으로 교체
-        Long memberId = 1L;  // 임시값. 테스트 진행용
-
-//        Long memberId = jwtUtil.getUserId(token.substring(7));
+        Long memberId = jwtUtil.getUserId(token.substring(7));
 
         return ResponseEntity.ok(aiService.convertToResume(memberId, projectId));
     }
@@ -55,13 +49,10 @@ public class AiController {
     // 마이페이지에서 [AI 포트폴리오 피드백] 버튼 클릭 시 호출.
     @PostMapping("/portfolio-feedback")
     public ResponseEntity<PortfolioFeedbackResponse> portfolioFeedback(
-//            @RequestHeader("Authorization") String token
+            @RequestHeader("Authorization") String token
     ) {
 
-        // TODO: 인증 통합 후 실제 회원 ID 추출 로직으로 교체
-        Long memberId = 1L;  // 임시값. 테스트 진행용
-
-//        Long memberId = jwtUtil.getUserId(token.substring(7));
+        Long memberId = jwtUtil.getUserId(token.substring(7));
 
         return ResponseEntity.ok(aiService.generatePortfolioFeedback(memberId));
     }
@@ -71,13 +62,10 @@ public class AiController {
     // 사용자의 모든 데이터를 AI로 정제 → HTML 렌더링 → PDF 변환 → 다운로드
     @PostMapping("/portfolio-pdf")
     public ResponseEntity<byte[]> downloadPortfolioPdf(
-//            @RequestHeader("Authorization") String token
+            @RequestHeader("Authorization") String token
     ) {
 
-//        Long memberId = jwtUtil.getUserId(token.substring(7));
-
-        // TODO: 인증 통합 후 실제 회원 ID 추출 로직으로 교체
-        Long memberId = 1L;  // 임시값. 테스트 진행용
+        Long memberId = jwtUtil.getUserId(token.substring(7));
 
         byte[] pdfBytes = aiService.generatePortfolioPdf(memberId);
 

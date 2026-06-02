@@ -4,6 +4,7 @@ import com.example.showfolio.dto.*;
 import com.example.showfolio.entity.AiUsage;
 import com.example.showfolio.exception.DailyLimitExceededException;
 import com.example.showfolio.exception.MonthlyLimitExceededException;
+import com.example.showfolio.exception.PremiumRequiredException;
 import com.example.showfolio.exception.ProjectNotFoundException;
 import com.example.showfolio.prompt.AiPromptType;
 import com.example.showfolio.repository.AiUsageRepository;
