@@ -7,8 +7,10 @@ import com.example.showfolio.dto.ResumeConvertResponse;
 import com.example.showfolio.service.AiService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+
+import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequestMapping("/api/ai")
@@ -62,5 +64,30 @@ public class AiController {
 //        Long memberId = jwtUtil.getUserId(token.substring(7));
 
         return ResponseEntity.ok(aiService.generatePortfolioFeedback(memberId));
+    }
+
+    // AI 포트폴리오 PDF 다운로드
+    // 마이페이지에서 [PDF 포트폴리오 자동 생성] 버튼 클릭 시 호출.
+    // 사용자의 모든 데이터를 AI로 정제 → HTML 렌더링 → PDF 변환 → 다운로드
+    @PostMapping("/portfolio-pdf")
+    public ResponseEntity<byte[]> downloadPortfolioPdf(
+//            @RequestHeader("Authorization") String token
+    ) {
+
+//        Long memberId = jwtUtil.getUserId(token.substring(7));
+
+        // TODO: 인증 통합 후 실제 회원 ID 추출 로직으로 교체
+        Long memberId = 1L;  // 임시값. 테스트 진행용
+
+        byte[] pdfBytes = aiService.generatePortfolioPdf(memberId);
+
+        // 프론트엔드로 파일 다운로드 헤더와 함께 바이너리 전송
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(ContentDisposition.attachment()
+                .filename("portfolio.pdf", StandardCharsets.UTF_8)
+                .build());
+
+        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
     }
 }

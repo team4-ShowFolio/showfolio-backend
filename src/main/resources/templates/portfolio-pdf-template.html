@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page { size: A4; margin: 30mm 20mm; }
+        body {
+            font-family: 'NanumGothic', sans-serif;
+            color: #1F2937;
+            line-height: 1.6;
+            word-break: keep-all; /* 한글 단어가 중간에 잘리지 않게 설정 */
+        }
+        .header {
+            border-bottom: 3px solid #4F46E5;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #4F46E5;
+        }
+        .email {
+            color: #6B7280;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .summary {
+            font-size: 14px;
+            color: #4F46E5;
+            font-weight: 500;
+            margin-top: 8px;
+        }
+        .bio {
+            background: #F9FAFB;
+            padding: 15px;
+            border-left: 4px solid #4F46E5;
+            margin: 20px 0;
+            font-size: 13px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4F46E5;
+            margin: 25px 0 15px;
+            border-bottom: 1px solid #E5E7EB;
+            padding-bottom: 5px;
+        }
+        .project {
+            margin-bottom: 20px;
+            padding: 12px;
+            background: #FAFBFC;
+            border-radius: 4px;
+        }
+        .project-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #111827;
+        }
+        .project-meta {
+            font-size: 11px;
+            color: #6B7280;
+            margin: 5px 0;
+        }
+        .project-desc {
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        .tech-stack {
+            margin-top: 8px;
+        }
+        .tech-tag {
+            display: inline-block;
+            background: #EEF2FF;
+            color: #4F46E5;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="name" th:text="${nickname}">홍길동</div>
+    <div class="email" th:text="${email}">user@example.com</div>
+    <div class="summary" th:text="${careerSummary}">한 줄 경력 요약</div>
+</div>
+
+<div class="bio" th:text="${refinedBio}">자기소개</div>
+
+<div class="section-title">프로젝트</div>
+
+<div class="project" th:each="project : ${projects}">
+    <div class="project-title" th:text="${project.title}">프로젝트 제목</div>
+    <div class="project-meta">
+        <span th:text="${project.role}">역할</span>
+        <span th:if="${project.period != null and !project.period.isEmpty()}">
+                | <span th:text="${project.period}">기간</span>
+            </span>
+    </div>
+    <div class="project-desc" th:text="${project.description}">설명</div>
+    <div class="tech-stack">
+        <span class="tech-tag" th:each="tech : ${project.techStack}" th:text="${tech}">기술</span>
+    </div>
+</div>
+</body>
+</html>

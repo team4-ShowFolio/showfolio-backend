@@ -9,6 +9,7 @@ import com.example.showfolio.prompt.AiPromptType;
 import com.example.showfolio.repository.AiUsageRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -17,7 +18,12 @@ import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.TemplateEngine;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -38,6 +44,9 @@ public class AiService {
     // Jackson 객체 파서 (스레드 세이프)
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    // 템플릿 엔진
+    private final TemplateEngine templateEngine;
+
     // 유료 회원 일일 토큰 한도 (input + output 합계 기준), 10만자
     private static final int DAILY_TOKEN_LIMIT = 100_000;
     // 유료 회원 월별 토큰 한도, 200만자
@@ -50,12 +59,12 @@ public class AiService {
         // 1. 구독 검증 (회원 담당자 작업 완료 후 활성화)
 
         // 회원 담당자가 Member 엔티티에 구독 필드(subscriptionType, subscriptionExpiredAt) + isPremium() 메서드 추가 후 활성화
-        // Member member = memberRepository.findById(memberId)
-        //     .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
-        //
-        // if (!member.isPremium()) {
-        //     throw new PremiumRequiredException();
-        // }
+         Member member = memberRepository.findById(memberId)
+             .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
+
+         if (!member.isPremium()) {
+             throw new PremiumRequiredException();
+         }
 
 
         // 2. 당일 토큰 할당량 한도 검증
@@ -272,7 +281,7 @@ public class AiService {
         UsageSnapshot snapshot = validateAndGetUsage(memberId);
 
         // 2. 데이터 수집 - 4개의 쿼리
-        // 1차캐시에서 멤버정보 조회
+        // 1차캐시에서 사용자 정보 조회
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
 
@@ -317,11 +326,14 @@ public class AiService {
         int inputTokens = usage.getPromptTokens();
         int outputTokens = usage.getCompletionTokens();
 
-        // 7. JSON 문자열 파싱 공정 (Java Object Mapping)
+        // 7. 데이터 정제(Cleansing) 및 자바 객체 바인딩(Parsing)
         FeedbackContentDto feedbackContent;
         try {
+            // 원본 문자열을 깨끗하게 정제
+            String pureJson = cleanJsonResponse(rawJsonResponse);
+
             // LLM이 보낸 JSON 포맷 문자열을 우리가 설계한 DTO 구조체 객체로 결합
-            feedbackContent = objectMapper.readValue(rawJsonResponse, FeedbackContentDto.class);
+            feedbackContent = objectMapper.readValue(rawJsonResponse, FeedbackContentDto.class); // 정제된 JSON으로 파싱
         } catch (JsonProcessingException e) {
             log.error("AI 응답 JSON 구조 역직렬화 실패. 원본 데이터: {}", rawJsonResponse, e);
             throw new IllegalStateException("AI가 생성한 리포트의 규격 형식이 올바르지 않습니다. 다시 시도해 주세요.", e);
@@ -401,8 +413,152 @@ public class AiService {
         return sb.toString();
     }
 
+    // AI 응답 텍스트 클렌징 메서드
+    private String cleanJsonResponse(String rawText) {
+
+        if (rawText == null || rawText.isBlank()) {
+            throw new IllegalArgumentException("AI 응답 데이터가 텅 비어 있습니다.");
+        }
+
+        String cleaned = rawText.trim();
+
+        // 1. 만약 앞뒤에 마크다운 코드 블록(```json ... ```)이 붙어 있다면 완벽히 제거
+        if (cleaned.startsWith("```")) {
+            cleaned = cleaned.replaceAll("\\s*```$", "");         // 끝 부분의 ``` 제거
+            cleaned = cleaned.trim();
+        }
+
+        // 2. AI가 앞뒤로 넉살 좋게 인사말을 붙였을 경우를 대비해, 최초의 '{'와 마지막 '}'를 찾아 자름
+        int firstBrace = cleaned.indexOf("{");
+        int lastBrace = cleaned.lastIndexOf("}");
+
+        if (firstBrace == -1 || lastBrace == -1 || firstBrace > lastBrace) {
+            log.error("정제 실패 - 유효한 JSON 구조를 찾을 수 없음. 원본: {}", rawText);
+            throw new IllegalArgumentException("AI 응답 구조가 유효한 JSON 포맷이 아닙니다.");
+        }
+
+        return cleaned.substring(firstBrace, lastBrace + 1);
+    }
+
     //===================================================================================================//
 
+    // AI 포트폴리오 PDF 생성
+    @Transactional
+    public byte[] generatePortfolioPdf(
+            Long memberId) {
+
+        // 1. AI 기능 사용 가능 여부 검증 (구독 + 토큰 한도)
+        UsageSnapshot snapshot = validateAndGetUsage(memberId);
+
+        // 2. 데이터 수집 - 4개의 쿼리
+        // 1차캐시에서 사용자 정보 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
+
+        // 사용자 기술스택 조회
+        List<UserTechStack> userTechStacks =
+                userTechStackRepository.findByMemberId(memberId);
+        //        userTechStackRepository.findByUserId(memberId);?
+
+        // 사용자 프로젝트 + 프로젝트별 기술스택 조회
+        // 최신 프로젝트 10개만 가져옴
+        List<Project> projects = projectRepository
+                .findAllByMemberIdWithTechStacks(memberId, PageRequest.of(0, 10));
+
+        // 프로젝트 존재 여부 검증 : 프로젝트가 0개인 경우 피드백 생성 불가
+        if (projects == null || projects.isEmpty()) {
+            throw new ProjectNotFoundException();
+        }
+
+        // 사용자 피드조회
+        // 최신 피드 20개만 가져옴
+        List<Feed> feeds = feedRepository
+                .findRecentByUserId(memberId, PageRequest.of(0, 20));
+
+        // 3. LLM에 보낼 텍스트 조립 (포트폴리오 피드백과 동일한 메서드 재사용)
+        String portfolioText = buildPortfolioText(
+                member, userTechStacks, projects, feeds);
+
+        // 4. LLM 호출 : ChatClient로 Gemini 호출 (메타데이터까지 받기), JSON 스트링 획득
+        ChatResponse response = chatClientBuilder.build()
+                .prompt()
+                .system(AiPromptType.PORTFOLIO_PDF.system())
+                .user(portfolioText)
+                .call()
+                .chatResponse();
+
+        // 5. AI API 원본 결과 텍스트 추출 (JSON 문자열)
+        String rawJsonResponse = response.getResult().getOutput().getText();
+
+        // 6. 토큰 사용량 추출
+        Usage usage = response.getMetadata().getUsage();
+        int inputTokens = usage.getPromptTokens();
+        int outputTokens = usage.getCompletionTokens();
+
+        // 7. JSON 파싱
+        PortfolioPdfContent content;
+        try {
+            // 원본 문자열을 깨끗하게 정제
+            String pureJson = cleanJsonResponse(rawJsonResponse);
+            content = objectMapper.readValue(pureJson, PortfolioPdfContent.class);
+        } catch (JsonProcessingException e) {
+            log.error("AI 응답 JSON 파싱 실패. 원본: {}", rawJsonResponse, e);
+            throw new IllegalStateException(
+                    "AI가 생성한 포트폴리오 형식이 올바르지 않습니다. 다시 시도해주세요.", e);
+        }
+
+        // 8. AI API 호출 결과 사용량 기록
+        recordUsageAndCalculate(memberId, "PORTFOLIO_PDF", snapshot,
+                inputTokens, outputTokens);
+
+        // 9. HTML 렌더링
+        String renderedHtml = renderPdfHtml(member, content);
+
+        // 10. PDF 변환
+        return convertHtmlToPdf(renderedHtml);
+    }
+
+    // Thymeleaf로 HTML 생성
+    private String renderPdfHtml(Member member, PortfolioPdfContent content) {
+
+        Context context = new Context();
+        context.setVariable("nickname", member.getNickname());
+        context.setVariable("email", member.getEmail());
+        context.setVariable("refinedBio", content.refinedBio());
+        context.setVariable("careerSummary", content.careerSummary());
+        context.setVariable("projects", content.projects());
+
+        return templateEngine.process("portfolio-pdf-template", context);
+    }
+
+    // HTML을 PDF 바이너리로 변환
+    private byte[] convertHtmlToPdf(String html) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.useFastMode();
+
+            // 한글 폰트 등록, 클래스패스에서 폰트 파일을 스트림으로 직접 추출
+            InputStream fontStream = getClass()
+                    .getResourceAsStream("/fonts/NanumGothic.ttf");
+            if (fontStream == null) {
+                throw new FileNotFoundException(
+                        "한글 폰트 파일을 찾을 수 없습니다: /fonts/NanumGothic.ttf");
+            }
+
+            // 빌더에 폰트 스트림 주입
+            builder.useFont(() -> fontStream, "NanumGothic");
+
+            builder.withHtmlContent(html, null);
+            builder.toStream(baos);
+            builder.run();
+
+            return baos.toByteArray();
+
+        } catch (Exception e) {
+            log.error("PDF 변환 실패", e);
+            throw new RuntimeException("PDF 생성 중 오류 발생", e);
+        }
+    }
 
 }
 
