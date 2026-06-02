@@ -11,6 +11,9 @@ import com.example.showfolio.repository.FeedRepository;
 import com.example.showfolio.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -133,5 +136,20 @@ public class CommentService {
                 .collect(Collectors.toList());
 
         return CommentResponse.from(comment, replies);
+    }
+
+    // 내가 쓴 댓글 목록
+    public Page<CommentResponse> getMyComments(
+            int page,
+            int size,
+            Long currentUserId) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Comment> comments = commentRepository
+                .findMyComments(currentUserId, pageable);
+
+        return comments.map(comment ->
+                CommentResponse.from(comment, List.of())
+        );
     }
 }
