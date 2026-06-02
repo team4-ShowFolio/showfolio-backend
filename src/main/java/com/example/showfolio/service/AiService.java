@@ -174,14 +174,13 @@ public class AiService {
         UsageSnapshot snapshot = validateAndGetUsage(memberId);
 
         // 3. LLM에 보낼 텍스트 전처리
-//        String userInput = buildResumeInput(project);
+        String userInput = buildResumeInput(project);
 
         // 4. LLM 호출 : ChatClient로 Gemini 호출 (메타데이터까지 받기)
         ChatResponse response = chatClientBuilder.build()
                 .prompt()
                 .system(AiPromptType.RESUME_CONVERT.system())
-                .user("todo:change userinput")
-//                .user(userInput)
+                .user(userInput)
                 .call()
                 .chatResponse();
 
@@ -274,7 +273,7 @@ public class AiService {
         // 사용자 기술스택 조회
         List<UserTechStack> userTechStacks =
                 userTechStackRepository.findByMemberId(memberId);
-        userTechStackRepository.findByUserId(memberId);?
+//        userTechStackRepository.findByUserId(memberId);?
 
         // 사용자 프로젝트 + 프로젝트별 기술스택 조회
         // 최신 프로젝트 10개만 가져옴
@@ -295,8 +294,7 @@ public class AiService {
         ChatResponse response = chatClientBuilder.build()
                 .prompt()
                 .system(AiPromptType.PORTFOLIO_FEEDBACK.system())
-                .user("todo:change userinput")
-//                .user(portfolioText)
+                .user(portfolioText)
                 .call()
                 .chatResponse();
 
@@ -381,5 +379,7 @@ public class AiService {
     }
 
     //===================================================================================================//
+
+
 }
 
