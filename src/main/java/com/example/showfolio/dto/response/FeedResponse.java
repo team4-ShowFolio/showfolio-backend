@@ -18,6 +18,7 @@ public class FeedResponse {
     private String title;
     private String content;
     private String visibility;
+    private Long projectId;
     private int likeCount;
     private int commentCount;
     private boolean isLiked;
@@ -36,6 +37,7 @@ public class FeedResponse {
                 .title(feed.getTitle())
                 .content(feed.getContent())
                 .visibility(feed.getVisibility().name())
+                .projectId(feed.getProjectId())
                 .likeCount(feed.getLikes().size())
                 .commentCount(feed.getComments().size())
                 .isLiked(isLiked)

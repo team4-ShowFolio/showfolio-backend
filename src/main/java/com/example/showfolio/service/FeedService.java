@@ -47,6 +47,7 @@ public class FeedService {
                 .title(request.getTitle())
                 .content(request.getContent())
                 .visibility(Visibility.valueOf(request.getVisibility()))
+                .projectId(request.getProjectId())
                 .build();
 
         feedRepository.save(feed);
@@ -115,7 +116,8 @@ public class FeedService {
         feed.update(
                 request.getTitle(),
                 request.getContent(),
-                Visibility.valueOf(request.getVisibility())
+                Visibility.valueOf(request.getVisibility()),
+                request.getProjectId()
         );
 
         // 태그 초기화 후 재저장

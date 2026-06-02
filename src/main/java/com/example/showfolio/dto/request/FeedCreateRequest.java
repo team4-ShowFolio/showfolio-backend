@@ -19,6 +19,9 @@ public class FeedCreateRequest {
     @NotNull(message = "공개 범위를 선택해주세요")
     private String visibility;
 
+    // 프로젝트 연결
+    private Long projectId;
+
     @Size(max = 5, message = "태그는 최대 5개까지 가능합니다")
     private List<String> tags = new ArrayList<>();
 

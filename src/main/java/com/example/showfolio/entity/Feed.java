@@ -35,6 +35,10 @@ public class Feed {
     @Column(nullable = false)
     private Visibility visibility;
 
+    // 프로젝트 연결
+    @Column(name = "project_id")
+    private Long projectId;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -65,10 +69,11 @@ public class Feed {
     private List<FeedMention> mentions = new ArrayList<>();
 
     // 수정 메서드
-    public void update(String title, String content, Visibility visibility) {
+    public void update(String title, String content, Visibility visibility, Long projectId) {
         this.title = title;
         this.content = content;
         this.visibility = visibility;
+        this.projectId = projectId;
     }
 
 }
