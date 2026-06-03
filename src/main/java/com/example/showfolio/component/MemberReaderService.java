@@ -1,5 +1,6 @@
 package com.example.showfolio.component;
 
+import com.example.showfolio.dto.AdminMemberDetailResponse;
 import com.example.showfolio.dto.AdminMemberResponse;
 import com.example.showfolio.dto.MemberSearchCondition;
 import com.example.showfolio.mock.Member;
@@ -20,12 +21,17 @@ public class MemberReaderService implements MemberReader {
     private final MemberRepository memberRepository;
 
     @Override
-    public AdminMemberResponse getById(Long userId) {
+    public AdminMemberDetailResponse getById(Long userId) {
         Member member = memberRepository.findById(userId)
                 .orElseGet(Member::new);
 
-        // TODO Feed, Comment 개수 조회 필요
-        return new AdminMemberResponse(member.getId(), member.getNickname(), member.getEmail(), member.getEmail(), member.getRole(), null, member.getCreatedAt(), List.of(), 0, 0);
+        // TODO Feed, Comment 개수 및 목록 조회 필요
+        return new AdminMemberDetailResponse(
+                member.getId(), member.getNickname(), member.getEmail(), member.getEmail(),
+                member.getRole(), null, member.getCreatedAt(),
+                List.of(), 0, 0,
+                List.of(), List.of(), List.of()
+        );
     }
 
     @Override

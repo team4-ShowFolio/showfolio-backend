@@ -68,4 +68,10 @@ public class ReportReadService implements ReportReader, ReportCounter {
     public long countByTargetUserId(Long targetUserId) {
         return reportRepository.countByTargetUserId(targetUserId);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ReportResponse> getByTargetUserId(Long targetUserId, Pageable pageable) {
+        return reportRepository.findByTargetUserId(targetUserId, pageable).map(ReportResponse::from);
+    }
 }

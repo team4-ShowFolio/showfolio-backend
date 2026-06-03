@@ -1,9 +1,11 @@
 package com.example.showfolio.controller;
 
+import com.example.showfolio.dto.AdminMemberDetailResponse;
 import com.example.showfolio.dto.AdminMemberResponse;
 import com.example.showfolio.dto.MemberSearchCondition;
 import com.example.showfolio.dto.MemberRoleUpdateRequest;
 import com.example.showfolio.dto.MemberSuspendRequest;
+import com.example.showfolio.dto.ReportResponse;
 import com.example.showfolio.service.AdminMemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +22,7 @@ public class AdminMemberController {
     private final AdminMemberService adminMemberService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<AdminMemberResponse> getById(
+    public ResponseEntity<AdminMemberDetailResponse> getById(
             @PathVariable Long id
     ) {
         return ResponseEntity.ok(adminMemberService.getById(id));
@@ -32,6 +34,14 @@ public class AdminMemberController {
             Pageable pageable
     ) {
         return ResponseEntity.ok(adminMemberService.getAll(condition, pageable));
+    }
+
+    @GetMapping("/{id}/reports")
+    public ResponseEntity<Page<ReportResponse>> getReportsByMemberId(
+            @PathVariable Long id,
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(adminMemberService.getReportsByMemberId(id, pageable));
     }
 
     @PutMapping("/{id}/role")

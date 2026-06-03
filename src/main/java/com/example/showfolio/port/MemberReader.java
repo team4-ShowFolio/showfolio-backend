@@ -1,5 +1,6 @@
 package com.example.showfolio.port;
 
+import com.example.showfolio.dto.AdminMemberDetailResponse;
 import com.example.showfolio.dto.AdminMemberResponse;
 import com.example.showfolio.dto.MemberSearchCondition;
 import org.springframework.data.domain.Page;
@@ -10,7 +11,7 @@ import org.springframework.data.domain.Pageable;
  */
 public interface MemberReader {
 
-    AdminMemberResponse getById(Long id);
+    AdminMemberDetailResponse getById(Long id);
 
     Page<AdminMemberResponse> getAll(MemberSearchCondition condition, Pageable pageable);
 }

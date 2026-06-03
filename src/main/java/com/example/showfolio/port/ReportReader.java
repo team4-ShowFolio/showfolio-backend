@@ -13,4 +13,6 @@ public interface ReportReader {
     Page<ReportResponse> getAll(ReportSearchCondition condition, Pageable pageable);
 
     Page<ReportProcessResponse> getAllProcesses(ReportProcessSearchCondition condition, Pageable pageable);
+
+    Page<ReportResponse> getByTargetUserId(Long targetUserId, Pageable pageable);
 }
