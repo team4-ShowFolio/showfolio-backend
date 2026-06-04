@@ -1,7 +1,10 @@
 package com.example.showfolio.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true) // LLM에 의해 추가된 필드 무시
 public record FeedbackContentDto(
         List<String> strengths,                             // 강점 목록 (3개 내외)
         List<ImprovementElement> improvements,              // 개선점 목록 (3개 내외)
@@ -29,7 +32,7 @@ public record FeedbackContentDto(
             int number,                                     // 질문 번호
             String question,                                // 질문 내용
             String intention,                               // 출제 의도
-            String evidence,                                // 서 서류상 근거 레코드
+            String evidence,                                // 서류상 근거 레코드
             List<String> followUp                           // 예상 꼬리 질문 목록
     ) {}
 }

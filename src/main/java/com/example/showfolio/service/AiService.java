@@ -2,14 +2,13 @@ package com.example.showfolio.service;
 
 import com.example.showfolio.dto.*;
 import com.example.showfolio.entity.AiUsage;
-import com.example.showfolio.exception.DailyLimitExceededException;
-import com.example.showfolio.exception.MonthlyLimitExceededException;
-import com.example.showfolio.exception.PremiumRequiredException;
-import com.example.showfolio.exception.ProjectNotFoundException;
+import com.example.showfolio.exception.*;
 import com.example.showfolio.prompt.AiPromptType;
 import com.example.showfolio.repository.AiUsageRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +26,8 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -43,7 +44,9 @@ public class AiService {
     private final FeedRepository feedRepository;
 
     // Jackson 객체 파서 (스레드 세이프)
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = JsonMapper.builder()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .build();
 
     // 템플릿 엔진
     private final TemplateEngine templateEngine;
@@ -180,11 +183,11 @@ public class AiService {
     public ResumeConvertResponse convertToResume(Long memberId, Long projectId) {
 
         // 1. 프로젝트 데이터 수집(프로젝트 + 기술 스택) + 본인 소유 검증
-//        Project project = projectRepository.findByIdWithTechStacks(projectId)
-//                .orElseThrow(() -> new ProjectNotFoundException(projectId));
-//        if (!project.isOwnedBy(memberId) {
-//            throw new ProjectAccessDeniedException();
-//        }
+        Project project = projectRepository.findByIdWithTechStacks(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+        if (!project.isOwnedBy(memberId)) {
+            throw new ProjectAccessDeniedException();
+        }
 
         // 2. AI 기능 사용 가능 여부 검증 (구독 + 토큰 한도)
         UsageSnapshot snapshot = validateAndGetUsage(memberId);
@@ -334,10 +337,21 @@ public class AiService {
             String pureJson = cleanJsonResponse(rawJsonResponse);
 
             // LLM이 보낸 JSON 포맷 문자열을 우리가 설계한 DTO 구조체 객체로 결합
-            feedbackContent = objectMapper.readValue(rawJsonResponse, FeedbackContentDto.class); // 정제된 JSON으로 파싱
+            feedbackContent = objectMapper.readValue(pureJson, FeedbackContentDto.class); // 정제된 JSON으로 파싱
         } catch (JsonProcessingException e) {
             log.error("AI 응답 JSON 구조 역직렬화 실패. 원본 데이터: {}", rawJsonResponse, e);
             throw new IllegalStateException("AI가 생성한 리포트의 규격 형식이 올바르지 않습니다. 다시 시도해 주세요.", e);
+        }
+
+        // 7-1. 필수 필드 누락 검증 (조용한 null 파싱 방어)
+        if (feedbackContent.strengths() == null
+                || feedbackContent.improvements() == null
+                || feedbackContent.recommendedTechnologies() == null
+                || feedbackContent.recommendedCompanies() == null
+                || feedbackContent.interviewQuestions() == null) {
+            log.error("AI 응답 필수 항목 누락. 원본: {}", rawJsonResponse);
+            throw new IllegalStateException(
+                    "AI 응답에 필수 항목이 누락되었습니다. 다시 시도해 주세요.");
         }
 
         // 8. AI API 호출 결과 사용량 기록 + 응답 조립
@@ -497,30 +511,41 @@ public class AiService {
         int outputTokens = usage.getCompletionTokens();
 
         // 7. JSON 파싱
-        PortfolioPdfContent content;
+        PortfolioPdfContentDto content;
         try {
             // 원본 문자열을 깨끗하게 정제
             String pureJson = cleanJsonResponse(rawJsonResponse);
-            content = objectMapper.readValue(pureJson, PortfolioPdfContent.class);
+            content = objectMapper.readValue(pureJson, PortfolioPdfContentDto.class);
         } catch (JsonProcessingException e) {
             log.error("AI 응답 JSON 파싱 실패. 원본: {}", rawJsonResponse, e);
             throw new IllegalStateException(
                     "AI가 생성한 포트폴리오 형식이 올바르지 않습니다. 다시 시도해주세요.", e);
         }
 
-        // 8. AI API 호출 결과 사용량 기록
+        // 7-1. 필수 필드 누락 검증 (조용한 null 파싱 방어)
+        if (content.refinedBio() == null
+                || content.projects() == null
+                || content.projects().isEmpty()) {
+            log.error("AI 응답 필수 항목 누락. 원본: {}", rawJsonResponse);
+            throw new IllegalStateException(
+                    "AI가 생성한 포트폴리오에 필수 항목이 누락되었습니다. 다시 시도해주세요.");
+        }
+
+        // 8. HTML 렌더링
+        String renderedHtml = renderPdfHtml(member, content);
+
+        // 9. PDF 변환
+        byte[] pdf =  convertHtmlToPdf(renderedHtml);
+
+        // 10. AI API 호출 결과 사용량 기록, 모든 작업 성공 후 사용량 기록 (실패 시 토큰 차감 방지)
         recordUsageAndCalculate(memberId, "PORTFOLIO_PDF", snapshot,
                 inputTokens, outputTokens);
 
-        // 9. HTML 렌더링
-        String renderedHtml = renderPdfHtml(member, content);
-
-        // 10. PDF 변환
-        return convertHtmlToPdf(renderedHtml);
+        return pdf;
     }
 
     // Thymeleaf로 HTML 생성
-    private String renderPdfHtml(Member member, PortfolioPdfContent content) {
+    private String renderPdfHtml(Member member, PortfolioPdfContentDto content) {
 
         Context context = new Context();
         context.setVariable("nickname", member.getNickname());

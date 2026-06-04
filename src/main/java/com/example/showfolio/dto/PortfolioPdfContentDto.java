@@ -1,11 +1,13 @@
 package com.example.showfolio.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 // AI가 생성하는 포트폴리오 PDF용 정제 데이터.
 // 타임리프 템플릿에 바인딩되는 구조.
-public record PortfolioPdfContent(
+@JsonIgnoreProperties(ignoreUnknown = true) // LLM에 의해 추가된 필드 무시
+public record PortfolioPdfContentDto(
 
         @JsonProperty("refinedBio")
         String refinedBio,           // 정제된 자기소개
