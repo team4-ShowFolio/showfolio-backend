@@ -1,3 +1,8 @@
+DROP DATABASE showfolio;
+CREATE DATABASE IF NOT EXISTS showfolio DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+use showfolio;
+
 -- AI 토큰 사용량 로그 테이블
 CREATE TABLE ai_usage (
                           id BIGINT NOT NULL AUTO_INCREMENT,
