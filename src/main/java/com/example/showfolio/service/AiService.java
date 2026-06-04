@@ -1,10 +1,20 @@
 package com.example.showfolio.service;
 
 import com.example.showfolio.dto.*;
+import com.example.showfolio.dto.request.DescriptionImproveRequest;
+import com.example.showfolio.dto.response.DescriptionImproveResponse;
+import com.example.showfolio.dto.response.PortfolioFeedbackResponse;
+import com.example.showfolio.dto.response.ResumeConvertResponse;
 import com.example.showfolio.entity.AiUsage;
+import com.example.showfolio.entity.Feed;
+import com.example.showfolio.entity.Member;
+import com.example.showfolio.entity.UserTechStack;
 import com.example.showfolio.exception.*;
 import com.example.showfolio.prompt.AiPromptType;
 import com.example.showfolio.repository.AiUsageRepository;
+import com.example.showfolio.repository.FeedRepository;
+import com.example.showfolio.repository.MemberRepository;
+import com.example.showfolio.repository.UserTechStackRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -60,9 +70,8 @@ public class AiService {
     // 검증 통과 시 (todayUsed, monthUsed) 반환 - 응답 조립에 재사용
     private UsageSnapshot validateAndGetUsage(Long memberId) {
 
-        // 1. 구독 검증 (회원 담당자 작업 완료 후 활성화)
+        // 1. 구독 검증
 
-        // 회원 담당자가 Member 엔티티에 구독 필드(subscriptionType, subscriptionExpiredAt) + isPremium() 메서드 추가 후 활성화
          Member member = memberRepository.findById(memberId)
              .orElseThrow(() -> new MemberNotFoundException());
 
@@ -272,10 +281,6 @@ public class AiService {
 //            "ORDER BY p.createdAt DESC")
 //    List<Project> findAllByMemberIdWithTechStacks(@Param("memberId") Long memberId, Pageable pageable);
 
-    // 포트폴리오 피드백용, 최근 N개 조회
-//    @Query("SELECT f FROM Feed f WHERE f.user.id = :userId " +
-//            "ORDER BY f.createdAt DESC")
-//    List<Feed> findRecentByUserId(@Param("userId") Long userId, Pageable pageable);
     // 프토폴리오 피드백
     @Transactional
     public PortfolioFeedbackResponse generatePortfolioFeedback(
@@ -291,8 +296,7 @@ public class AiService {
 
         // 사용자 기술스택 조회
         List<UserTechStack> userTechStacks =
-                userTechStackRepository.findByMemberId(memberId);
-//        userTechStackRepository.findByUserId(memberId);?
+                userTechStackRepository.findByMember(member);
 
         // 사용자 프로젝트 + 프로젝트별 기술스택 조회
         // 최신 프로젝트 10개만 가져옴
@@ -307,7 +311,7 @@ public class AiService {
         // 사용자 피드조회
         // 최신 피드 20개만 가져옴
         List<Feed> feeds =
-                feedRepository.findRecentByUserId(memberId, PageRequest.of(0, 20));
+                feedRepository.findRecentByMemberId(memberId, PageRequest.of(0, 20));
 
 
         // 3. LLM에 보낼 텍스트 전처리 (StringBuilder 힙 메모리 최적화)
@@ -472,8 +476,7 @@ public class AiService {
 
         // 사용자 기술스택 조회
         List<UserTechStack> userTechStacks =
-                userTechStackRepository.findByMemberId(memberId);
-        //        userTechStackRepository.findByUserId(memberId);?
+                userTechStackRepository.findByMember(member);
 
         // 사용자 프로젝트 + 프로젝트별 기술스택 조회
         // 최신 프로젝트 10개만 가져옴
@@ -488,7 +491,7 @@ public class AiService {
         // 사용자 피드조회
         // 최신 피드 20개만 가져옴
         List<Feed> feeds = feedRepository
-                .findRecentByUserId(memberId, PageRequest.of(0, 20));
+                .findRecentByMemberId(memberId, PageRequest.of(0, 20));
 
         // 3. LLM에 보낼 텍스트 조립 (포트폴리오 피드백과 동일한 메서드 재사용)
         String portfolioText = buildPortfolioText(

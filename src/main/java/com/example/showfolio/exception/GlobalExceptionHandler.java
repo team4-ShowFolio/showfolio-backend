@@ -1,5 +1,6 @@
 package com.example.showfolio.exception;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,24 +9,50 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // @Valid 검증 실패 - 첫 번째 에러 메시지만 반환
+    // @Valid 유효성 검사 실패, 검증 실패
     // 400 Bad Request + Body(ErrorResponse)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(
+    public ResponseEntity<Map<String, String>> handleValidation(
             MethodArgumentNotValidException ex) {
 
-        String message = ex.getBindingResult().getFieldErrors().stream()
-                .findFirst()
-                .map(error -> error.getDefaultMessage())
-                .orElse("입력값이 올바르지 않습니다.");
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors()
+                .forEach(error ->
+                        errors.put(error.getField(), error.getDefaultMessage()));
 
-        log.warn("검증 실패: {}", message);
+        log.warn("검증 실패: {}", errors);
         return ResponseEntity.badRequest()
-                .body(new ErrorResponse(message));
+                .body(errors);
+    }
+
+    // 데이터가 없을 때
+    // 404 Not Found
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleEntityNotFoundException(
+            EntityNotFoundException ex) {
+
+        log.warn("데이터 없음: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Map.of("message", ex.getMessage()));
+    }
+
+    // 잘못된 요청일 때
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalArgumentException(
+            IllegalArgumentException ex) {
+
+        log.warn("잘못된 요청: {}", ex.getMessage());
+        return ResponseEntity
+                .badRequest()
+                .body(Map.of("message", ex.getMessage()));
     }
 
     // JSON 자체가 깨짐
@@ -114,9 +141,7 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(ex.getMessage()));
     }
 
-    /**
-     * 그 외 모든 예외 (DB 오류, NPE 등)
-     */
+    // 그 외 모든 예외 (DB 오류, NPE 등)
     // 500 Internal Server Error + Body(ErrorResponse)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAll(Exception ex) {

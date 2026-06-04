@@ -1,4 +1,6 @@
-package com.example.showfolio.dto;
+package com.example.showfolio.dto.response;
+
+import com.example.showfolio.dto.TokenUsage;
 
 // AI 기반 {이력서용 문장 변환} API 응답 DTO.
 // 변환된 이력서 문장 + 유저별 AI 토큰 사용량(당일,당월) 정보

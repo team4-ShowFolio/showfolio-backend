@@ -1,4 +1,4 @@
-package com.example.showfolio.dto;
+package com.example.showfolio.dto.request;
 
 
 import jakarta.validation.constraints.NotBlank;

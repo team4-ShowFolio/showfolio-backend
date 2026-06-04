@@ -1,10 +1,11 @@
 package com.example.showfolio.controller;
 
-import com.example.showfolio.dto.DescriptionImproveRequest;
-import com.example.showfolio.dto.DescriptionImproveResponse;
-import com.example.showfolio.dto.PortfolioFeedbackResponse;
-import com.example.showfolio.dto.ResumeConvertResponse;
+import com.example.showfolio.dto.request.DescriptionImproveRequest;
+import com.example.showfolio.dto.response.DescriptionImproveResponse;
+import com.example.showfolio.dto.response.PortfolioFeedbackResponse;
+import com.example.showfolio.dto.response.ResumeConvertResponse;
 import com.example.showfolio.service.AiService;
+import com.example.showfolio.util.JwtUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;

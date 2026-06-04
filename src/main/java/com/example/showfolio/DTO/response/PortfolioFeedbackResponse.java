@@ -1,4 +1,7 @@
-package com.example.showfolio.dto;
+package com.example.showfolio.dto.response;
+
+import com.example.showfolio.dto.FeedbackContentDto;
+import com.example.showfolio.dto.TokenUsage;
 
 // AI 기반 {포트폴리오 피드백} API의 응답 객체(DTO).
 // 포트폴리오 피드백 +  유저별 AI 토큰 사용량(당일,당월) 정보
