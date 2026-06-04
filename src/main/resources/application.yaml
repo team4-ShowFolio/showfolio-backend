@@ -1,35 +1,25 @@
-  spring:
-    application:
-      name: ShowFolio
-    datasource:
-      url: jdbc:mysql://localhost:3306/showfolio
-      username: ${DB_USERNAME}
-      password: ${DB_PASSWORD}
-      driver-class-name: com.mysql.cj.jdbc.Driver
-    jpa:
+spring:
+  application:
+    name: ShowFolio
+  datasource:
+    url: jdbc:mysql://localhost:3306/showfolio
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
       hibernate:
-        ddl-auto: update
-      show-sql: true
-      properties:
-        hibernate:
-          format_sql: true
-          dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
 
-# 파일 업로드 설정 추가
-#   servlet:
-#     multipart:
-#       enabled: true
-#       max-file-size: 10MB      # 파일 하나당 최대 크기
-#       max-request-size: 50MB   # 요청 전체 최대 크기
-
-  jwt:
-    secret: ${JWT_SECRET}        # JWT 시크릿 키
-    access-expiration: 3600000
-    refresh-expiration: 1209600000
-
-  server:
-    port: 8080
-
+jwt:
+  secret: ${JWT_SECRET}
+  access-expiration: 3600000
+  refresh-expiration: 1209600000
 
   file:
-    upload-dir: uploads/    # 로컬 저장 경로
+    upload-dir: uploads/ # 로컬 저장 경로
