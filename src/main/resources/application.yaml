@@ -1,21 +1,38 @@
-  spring:
-    application:
-      name: ShowFolio
-    datasource:
-      url: jdbc:mysql://localhost:3306/showfolio
-      username: ${DB_USERNAME}
-      password: ${DB_PASSWORD}
-      driver-class-name: com.mysql.cj.jdbc.Driver
-    jpa:
-      hibernate:
-        ddl-auto: update
-      show-sql: true
-      properties:
-        hibernate:
-          format_sql: true
-          dialect: org.hibernate.dialect.MySQLDialect
+spring:
+  application:
+    name: ShowFolio
 
-# 파일 업로드 설정 추가
+  # 1. Spring AI - Google GenAI (Gemini) 설정
+  ai:
+    google:
+      genai:
+        # Google AI Studio에서 발급받은 API 키를 넣는 곳.
+        api-key: ${GEMINI_API_KEY}
+        chat:
+          # 사용할 모델을 명시 (Gemini 2.5 Flash)
+          model: gemini-2.5-flash
+          # 답변의 창의성 조절 (0.0에 가까울수록 엄격한 답변, 1.0에 가까울수록 창의적인 답변)
+          temperature: 0.5
+          max-output-tokens: 50000   # 출력 토큰개수 제한 안전장치 (5만자 이상 동작 방지)
+
+  # 2. Database - MySQL 연동 설정
+  datasource:
+    url: jdbc:mysql://localhost:3306/showfolio
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # 3. JPA / Hibernate 설정
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  # 파일 업로드 설정 추가
 #   servlet:
 #     multipart:
 #       enabled: true

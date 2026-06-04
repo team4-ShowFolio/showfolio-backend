@@ -60,4 +60,10 @@ public class Member {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    public boolean isPremium() {
+        return subscriptionType == SubscriptionType.PREMIUM
+                && subscriptionExpiredAt != null
+                && subscriptionExpiredAt.isAfter(LocalDateTime.now());
+    }
 }
