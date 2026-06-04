@@ -37,3 +37,6 @@ src/main/resources/application-local.yaml
 
 ### Test HTTP ###
 *.http  #
+
+## 필요한 경우
+.env

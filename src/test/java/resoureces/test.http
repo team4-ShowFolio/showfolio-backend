@@ -33,12 +33,12 @@ Content-Type: application/json
 
 ### 프로필 조회
 GET http://localhost:8080/api/auth/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2IiwiaWF0IjoxNzgwMzY2MDI3LCJleHAiOjE3ODAzNjk2Mjd9.6ZpUVH8x_XRPr7sc8q1w3FOJuNA3mnVjEGpfa7Tpfy0
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5IiwiaWF0IjoxNzgwNTUyNjgwLCJleHAiOjE3ODA1NTYyODB9.fxgUk1QJIXcUBPTf0GuZpgQRU7dl2LoSz7eQqFlApPg
 
 ### 프로필 수정
 PUT http://localhost:8080/api/auth/profile
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwMjk5NTgyLCJleHAiOjE3ODAzMDMxODJ9.Mh8bEKPLMWhh9KWZOdK5RKMR9M0xCdT-MtiR_OX86_A
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5IiwiaWF0IjoxNzgwNTUyNjgwLCJleHAiOjE3ODA1NTYyODB9.fxgUk1QJIXcUBPTf0GuZpgQRU7dl2LoSz7eQqFlApPg
 
 {
   "nickname": "현섭수정",
@@ -49,7 +49,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwMjk5NTgyL
 ### 기술스택 수정
 PUT http://localhost:8080/api/auth/techstack
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwMjk5NTgyLCJleHAiOjE3ODAzMDMxODJ9.Mh8bEKPLMWhh9KWZOdK5RKMR9M0xCdT-MtiR_OX86_A
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5IiwiaWF0IjoxNzgwNTUyNjgwLCJleHAiOjE3ODA1NTYyODB9.fxgUk1QJIXcUBPTf0GuZpgQRU7dl2LoSz7eQqFlApPg
 
 {
   "techNames": ["Spring Boot", "React", "MySQL"]
@@ -57,7 +57,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwMjk5NTgyL
 
 ### 기술스택 조회
 GET http://localhost:8080/api/auth/techstack
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwMjk5NTgyLCJleHAiOjE3ODAzMDMxODJ9.Mh8bEKPLMWhh9KWZOdK5RKMR9M0xCdT-MtiR_OX86_A
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5IiwiaWF0IjoxNzgwNTUyNjgwLCJleHAiOjE3ODA1NTYyODB9.fxgUk1QJIXcUBPTf0GuZpgQRU7dl2LoSz7eQqFlApPg
 
 ### 토큰 재발급
 POST http://localhost:8080/api/auth/refresh
@@ -72,28 +72,28 @@ DELETE http://localhost:8080/api/auth/account
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwMjk5NTgyLCJleHAiOjE3ODAzMDMxODJ9.Mh8bEKPLMWhh9KWZOdK5RKMR9M0xCdT-MtiR_OX86_A
 
 ### 팔로우
-POST http://localhost:8080/api/follow/2
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwMjk5NTgyLCJleHAiOjE3ODAzMDMxODJ9.Mh8bEKPLMWhh9KWZOdK5RKMR9M0xCdT-MtiR_OX86_A
+POST http://localhost:8080/api/follow/8
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5IiwiaWF0IjoxNzgwNTUyNjgwLCJleHAiOjE3ODA1NTYyODB9.fxgUk1QJIXcUBPTf0GuZpgQRU7dl2LoSz7eQqFlApPg
 
 ### 언팔로우
-DELETE http://localhost:8080/api/follow/2
+DELETE http://localhost:8080/api/follow/8
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwMjk5NTgyLCJleHAiOjE3ODAzMDMxODJ9.Mh8bEKPLMWhh9KWZOdK5RKMR9M0xCdT-MtiR_OX86_A
 
 ### 팔로워 목록
 GET http://localhost:8080/api/follow/followers
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwMjk5NTgyLCJleHAiOjE3ODAzMDMxODJ9.Mh8bEKPLMWhh9KWZOdK5RKMR9M0xCdT-MtiR_OX86_A
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5IiwiaWF0IjoxNzgwNTUyNjgwLCJleHAiOjE3ODA1NTYyODB9.fxgUk1QJIXcUBPTf0GuZpgQRU7dl2LoSz7eQqFlApPg
 
 ### 팔로잉 목록
 GET http://localhost:8080/api/follow/followings
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwMjk5NTgyLCJleHAiOjE3ODAzMDMxODJ9.Mh8bEKPLMWhh9KWZOdK5RKMR9M0xCdT-MtiR_OX86_A
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5IiwiaWF0IjoxNzgwNTUyNjgwLCJleHAiOjE3ODA1NTYyODB9.fxgUk1QJIXcUBPTf0GuZpgQRU7dl2LoSz7eQqFlApPg
 
 ### 팔로워/팔로잉 수
 GET http://localhost:8080/api/follow/count
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwMjk5NTgyLCJleHAiOjE3ODAzMDMxODJ9.Mh8bEKPLMWhh9KWZOdK5RKMR9M0xCdT-MtiR_OX86_A
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5IiwiaWF0IjoxNzgwNTUyNjgwLCJleHAiOjE3ODA1NTYyODB9.fxgUk1QJIXcUBPTf0GuZpgQRU7dl2LoSz7eQqFlApPg
 
 ### 팔로우 여부 확인
-GET http://localhost:8080/api/follow/check/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwMjk5NTgyLCJleHAiOjE3ODAzMDMxODJ9.Mh8bEKPLMWhh9KWZOdK5RKMR9M0xCdT-MtiR_OX86_A
+GET http://localhost:8080/api/follow/check/8
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5IiwiaWF0IjoxNzgwNTUyNjgwLCJleHAiOjE3ODA1NTYyODB9.fxgUk1QJIXcUBPTf0GuZpgQRU7dl2LoSz7eQqFlApPg
 
 ### 이메일 중복확인
 GET http://localhost:8080/api/auth/check/email?email=test@test.com
@@ -102,4 +102,4 @@ GET http://localhost:8080/api/auth/check/email?email=test@test.com
 GET http://localhost:8080/api/auth/check/nickname?nickname=현섭123
 
 ### 다른 유저 프로필 조회
-GET http://localhost:8080/api/auth/profile/6
+GET http://localhost:8080/api/auth/profile/8
