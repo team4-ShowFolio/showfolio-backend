@@ -28,6 +28,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final FeedRepository feedRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     // 댓글 작성
     @Transactional
@@ -63,6 +64,13 @@ public class CommentService {
                 .build();
 
         commentRepository.save(comment);
+
+        // 댓글 알림 생성 (피드 작성자에게)
+        notificationService.createCommentNotification(
+                member,
+                feed.getUser(),
+                feed
+        );
 
         return CommentResponse.from(comment, List.of());
     }

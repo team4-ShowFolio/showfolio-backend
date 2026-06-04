@@ -27,6 +27,7 @@ public class FeedService {
     private final FeedImageRepository feedImageRepository;
     private final FeedMentionRepository feedMentionRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
 
     // 피드 작성
@@ -81,6 +82,13 @@ public class FeedService {
                     .mentionedUser(mentionedMember)
                     .build();
             feedMentionRepository.save(mention);
+
+            // 멘션 알림 생성
+            notificationService.createMentionNotification(
+                    member,
+                    mentionedMember,
+                    feed
+            );
         });
 
         return FeedResponse.from(feed, false);
@@ -244,6 +252,13 @@ public class FeedService {
                     .user(member)
                     .build();
             feedLikeRepository.save(feedLike);
+
+            // 좋아요 알림 생성
+            notificationService.createLikeNotification(
+                    member,
+                    feed.getUser(),
+                    feed
+            );
         }
 
         int likeCount = feedLikeRepository.countByFeedId(feedId);
