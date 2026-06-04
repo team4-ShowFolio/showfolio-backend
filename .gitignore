@@ -33,4 +33,7 @@ build/
 .vscode/
 
 ### Sensitive Files ###
-src/main/resources/application.yaml
+src/main/resources/application-local.yaml
+
+### Test HTTP ###
+*.http  #
