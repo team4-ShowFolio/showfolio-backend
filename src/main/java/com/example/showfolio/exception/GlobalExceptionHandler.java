@@ -72,6 +72,15 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(ex.getMessage()));
     }
 
+    // 회원 조회 실패
+    // 404 Not Found + Body(ErrorResponse)
+    @ExceptionHandler(MemberNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleMemberNotFound(MemberNotFoundException ex) {
+        log.warn("회원 조회 실패: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND) // 404
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+
     // 등록된 프로젝트가 없거나 특정 프로젝트를 찾을 수 없음
     // 404 Not Found + Body(ErrorResponse)
     @ExceptionHandler(ProjectNotFoundException.class)
@@ -94,8 +103,19 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(ex.getMessage()));
     }
 
+    // AI 응답이 규격에 맞지 않거나 필수 항목이 누락된 경우
+    // 502 Bad Gateway + Body(ErrorResponse)
+    // 외부(AI) 응답 문제 → 재시도 유도
+    @ExceptionHandler(AiResponseFormatException.class)
+    public ResponseEntity<ErrorResponse> handleAiResponseFormat(AiResponseFormatException ex) {
+
+        log.warn("AI 응답 규격 오류: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY) // 502
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+
     /**
-     * 그 외 모든 예외 (AI 서비스 오류, DB 오류, NPE 등)
+     * 그 외 모든 예외 (DB 오류, NPE 등)
      */
     // 500 Internal Server Error + Body(ErrorResponse)
     @ExceptionHandler(Exception.class)

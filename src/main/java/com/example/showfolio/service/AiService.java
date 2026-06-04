@@ -64,7 +64,7 @@ public class AiService {
 
         // 회원 담당자가 Member 엔티티에 구독 필드(subscriptionType, subscriptionExpiredAt) + isPremium() 메서드 추가 후 활성화
          Member member = memberRepository.findById(memberId)
-             .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
+             .orElseThrow(() -> new MemberNotFoundException());
 
          if (!member.isPremium()) {
              throw new PremiumRequiredException();
@@ -287,7 +287,7 @@ public class AiService {
         // 2. 데이터 수집 - 4개의 쿼리
         // 1차캐시에서 사용자 정보 조회
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
+                .orElseThrow(() -> new MemberNotFoundException());
 
         // 사용자 기술스택 조회
         List<UserTechStack> userTechStacks =
@@ -340,7 +340,7 @@ public class AiService {
             feedbackContent = objectMapper.readValue(pureJson, FeedbackContentDto.class); // 정제된 JSON으로 파싱
         } catch (JsonProcessingException e) {
             log.error("AI 응답 JSON 구조 역직렬화 실패. 원본 데이터: {}", rawJsonResponse, e);
-            throw new IllegalStateException("AI가 생성한 리포트의 규격 형식이 올바르지 않습니다. 다시 시도해 주세요.", e);
+            throw new AiResponseFormatException();
         }
 
         // 7-1. 필수 필드 누락 검증 (조용한 null 파싱 방어)
@@ -350,8 +350,7 @@ public class AiService {
                 || feedbackContent.recommendedCompanies() == null
                 || feedbackContent.interviewQuestions() == null) {
             log.error("AI 응답 필수 항목 누락. 원본: {}", rawJsonResponse);
-            throw new IllegalStateException(
-                    "AI 응답에 필수 항목이 누락되었습니다. 다시 시도해 주세요.");
+            throw new AiResponseFormatException();
         }
 
         // 8. AI API 호출 결과 사용량 기록 + 응답 조립
@@ -432,7 +431,8 @@ public class AiService {
     private String cleanJsonResponse(String rawText) {
 
         if (rawText == null || rawText.isBlank()) {
-            throw new IllegalArgumentException("AI 응답 데이터가 텅 비어 있습니다.");
+            log.error("AI 응답 데이터가 텅 비어 있습니다.");
+            throw new AiResponseFormatException();
         }
 
         String cleaned = rawText.trim();
@@ -449,7 +449,7 @@ public class AiService {
 
         if (firstBrace == -1 || lastBrace == -1 || firstBrace > lastBrace) {
             log.error("정제 실패 - 유효한 JSON 구조를 찾을 수 없음. 원본: {}", rawText);
-            throw new IllegalArgumentException("AI 응답 구조가 유효한 JSON 포맷이 아닙니다.");
+            throw new AiResponseFormatException();
         }
 
         return cleaned.substring(firstBrace, lastBrace + 1);
@@ -468,7 +468,7 @@ public class AiService {
         // 2. 데이터 수집 - 4개의 쿼리
         // 1차캐시에서 사용자 정보 조회
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
+                .orElseThrow(() -> new MemberNotFoundException());
 
         // 사용자 기술스택 조회
         List<UserTechStack> userTechStacks =
@@ -518,8 +518,7 @@ public class AiService {
             content = objectMapper.readValue(pureJson, PortfolioPdfContentDto.class);
         } catch (JsonProcessingException e) {
             log.error("AI 응답 JSON 파싱 실패. 원본: {}", rawJsonResponse, e);
-            throw new IllegalStateException(
-                    "AI가 생성한 포트폴리오 형식이 올바르지 않습니다. 다시 시도해주세요.", e);
+            throw new AiResponseFormatException();
         }
 
         // 7-1. 필수 필드 누락 검증 (조용한 null 파싱 방어)
@@ -527,8 +526,7 @@ public class AiService {
                 || content.projects() == null
                 || content.projects().isEmpty()) {
             log.error("AI 응답 필수 항목 누락. 원본: {}", rawJsonResponse);
-            throw new IllegalStateException(
-                    "AI가 생성한 포트폴리오에 필수 항목이 누락되었습니다. 다시 시도해주세요.");
+            throw new AiResponseFormatException();
         }
 
         // 8. HTML 렌더링
