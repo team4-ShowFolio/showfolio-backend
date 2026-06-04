@@ -26,9 +26,12 @@ public class NotificationResponse {
                 .id(notification.getId())
                 .userId(notification.getUser().getId())
                 .userNickname(notification.getUser().getNickname())
-                .senderId(notification.getSender().getId())
-                .senderNickname(notification.getSender().getNickname())
-                .senderProfileImage(notification.getSender().getProfileImage())
+                .senderId(notification.getSender() != null
+                        ? notification.getSender().getId() : null)
+                .senderNickname(notification.getSender() != null
+                        ? notification.getSender().getNickname() : null)
+                .senderProfileImage(notification.getSender() != null
+                        ? notification.getSender().getProfileImage() : null)
                 .type(notification.getType().name())
                 .feedId(notification.getFeed() != null
                         ? notification.getFeed().getId() : null)
