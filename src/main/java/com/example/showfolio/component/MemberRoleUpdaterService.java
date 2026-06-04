@@ -1,8 +1,8 @@
 package com.example.showfolio.component;
 
-import com.example.showfolio.mock.Member;
-import com.example.showfolio.mock.MemberRepository;
-import com.example.showfolio.mock.Role;
+import com.example.showfolio.entity.Member;
+import com.example.showfolio.repository.MemberRepository;
+import com.example.showfolio.enums.Role;
 import com.example.showfolio.port.MemberRoleUpdater;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -21,7 +21,7 @@ public class MemberRoleUpdaterService implements MemberRoleUpdater {
         Member member = memberRepository.findById(userId)
                 .orElseGet(Member::new);
 
-        member.updateRole(role);
+        member.setRole(role);
         memberRepository.save(member);
     }
 }

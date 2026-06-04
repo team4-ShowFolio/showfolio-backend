@@ -1,8 +1,9 @@
 package com.example.showfolio.component;
 
-import com.example.showfolio.mock.Member;
-import com.example.showfolio.mock.MemberRepository;
+import com.example.showfolio.entity.Member;
+import com.example.showfolio.repository.MemberRepository;
 import com.example.showfolio.port.MemberStatusUpdater;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +19,6 @@ public class MemberStatusUpdaterService implements MemberStatusUpdater {
         Member member = memberRepository.findById(userId)
                 .orElseGet(Member::new);
 
-        member.updateDelete();
+        member.setDeletedAt(LocalDateTime.now());
     }
 }

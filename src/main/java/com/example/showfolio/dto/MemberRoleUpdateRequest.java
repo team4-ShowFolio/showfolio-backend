@@ -1,6 +1,6 @@
 package com.example.showfolio.dto;
 
-import com.example.showfolio.mock.Role;
+import com.example.showfolio.enums.Role;
 import jakarta.validation.constraints.NotNull;
 
 public record MemberRoleUpdateRequest(

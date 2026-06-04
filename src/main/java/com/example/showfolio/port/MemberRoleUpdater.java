@@ -1,6 +1,6 @@
 package com.example.showfolio.port;
 
-import com.example.showfolio.mock.Role;
+import com.example.showfolio.enums.Role;
 
 /**
  * 회원 권한을 수정하는 기능을 구현하기 위한 인터페이스 입니다.
