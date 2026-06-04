@@ -5,6 +5,8 @@ import com.example.showfolio.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,8 +21,8 @@ public class NotificationController {
     public ResponseEntity<Page<NotificationResponse>> getNotifications(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            // JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId) {
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         return ResponseEntity.ok(
                 notificationService.getNotifications(page, size, currentUserId));
@@ -29,8 +31,8 @@ public class NotificationController {
     // 읽지 않은 알림 수
     @GetMapping("/unread-count")
     public ResponseEntity<Integer> getUnreadCount(
-            // JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId) {
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         return ResponseEntity.ok(
                 notificationService.getUnreadCount(currentUserId));
@@ -40,8 +42,8 @@ public class NotificationController {
     @PatchMapping("/{notificationId}")
     public ResponseEntity<Void> readNotification(
             @PathVariable Long notificationId,
-            // JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId) {
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         notificationService.readNotification(notificationId, currentUserId);
         return ResponseEntity.ok().build();
@@ -50,8 +52,8 @@ public class NotificationController {
     // 전체 읽음 처리
     @PatchMapping("/read-all")
     public ResponseEntity<Void> readAllNotifications(
-            // JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId) {
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         notificationService.readAllNotifications(currentUserId);
         return ResponseEntity.ok().build();

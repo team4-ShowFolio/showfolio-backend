@@ -12,7 +12,7 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Long>, CommentRepositoryCustom {
     // 내가 쓴 댓글 목록
     @Query("SELECT c FROM Comment c " +
-            "WHERE c.user.id = :userId " +
+            "WHERE c.member.id = :userId " +
             "AND c.deletedAt IS NULL " +
             "ORDER BY c.createdAt DESC")
     Page<Comment> findMyComments(

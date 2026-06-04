@@ -5,6 +5,7 @@ import com.example.showfolio.dto.request.FeedUpdateRequest;
 import com.example.showfolio.dto.response.FeedLikeResponse;
 import com.example.showfolio.dto.response.FeedResponse;
 import com.example.showfolio.entity.*;
+import com.example.showfolio.enums.Visibility;
 import com.example.showfolio.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class FeedService {
     private final FeedTagRepository feedTagRepository;
     private final FeedImageRepository feedImageRepository;
     private final FeedMentionRepository feedMentionRepository;
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
     private final NotificationService notificationService;
 
 
@@ -40,11 +41,11 @@ public class FeedService {
             throw new IllegalArgumentException("내용 또는 이미지를 입력해주세요");
         }
 
-        User member = userRepository.findById(currentUserId)
+        Member member = memberRepository.findById(currentUserId)
                 .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다"));
 
         Feed feed = Feed.builder()
-                .user(member)
+                .member(member)
                 .title(request.getTitle())
                 .content(request.getContent())
                 .visibility(Visibility.valueOf(request.getVisibility()))
@@ -74,7 +75,7 @@ public class FeedService {
         }
 
         request.getMentionedUserIds().forEach(mentionedUserId -> {
-            User mentionedMember = userRepository.findById(mentionedUserId)
+            Member mentionedMember = memberRepository.findById(mentionedUserId)
                     .orElseThrow(() -> new EntityNotFoundException("멘션한 유저를 찾을 수 없습니다"));
 
             FeedMention mention = FeedMention.builder()
@@ -117,7 +118,7 @@ public class FeedService {
         Feed feed = feedRepository.findById(feedId)
                 .orElseThrow(() -> new EntityNotFoundException("피드를 찾을 수 없습니다"));
 
-        if (!feed.getUser().getId().equals(currentUserId)) {
+        if (!feed.getMember().getId().equals(currentUserId)) {
             throw new IllegalArgumentException("수정 권한이 없습니다");
         }
 
@@ -155,7 +156,7 @@ public class FeedService {
         // 멘션 초기화 후 재저장
         feedMentionRepository.deleteByFeedId(feedId);
         request.getMentionedUserIds().forEach(mentionedUserId -> {
-            User mentionedMember = userRepository.findById(mentionedUserId)
+            Member mentionedMember = memberRepository.findById(mentionedUserId)
                     .orElseThrow(() -> new EntityNotFoundException("멘션한 유저를 찾을 수 없습니다"));
 
             FeedMention mention = FeedMention.builder()
@@ -178,7 +179,7 @@ public class FeedService {
         Feed feed = feedRepository.findById(feedId)
                 .orElseThrow(() -> new EntityNotFoundException("피드를 찾을 수 없습니다"));
 
-        if (!feed.getUser().getId().equals(currentUserId)) {
+        if (!feed.getMember().getId().equals(currentUserId)) {
             throw new IllegalArgumentException("삭제 권한이 없습니다");
         }
 
@@ -238,7 +239,7 @@ public class FeedService {
         Feed feed = feedRepository.findById(feedId)
                 .orElseThrow(() -> new EntityNotFoundException("피드를 찾을 수 없습니다"));
 
-        User member = userRepository.findById(currentUserId)
+        Member member = memberRepository.findById(currentUserId)
                 .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다"));
 
         boolean isLiked = feedLikeRepository
@@ -256,7 +257,7 @@ public class FeedService {
             // 좋아요 알림 생성
             notificationService.createLikeNotification(
                     member,
-                    feed.getUser(),
+                    feed.getMember(),
                     feed
             );
         }
@@ -306,7 +307,7 @@ public class FeedService {
     private void validateVisibility(Feed feed, Long currentUserId) {
         switch (feed.getVisibility()) {
             case PRIVATE -> {
-                if (!feed.getUser().getId().equals(currentUserId)) {
+                if (!feed.getMember().getId().equals(currentUserId)) {
                     throw new IllegalArgumentException("비공개 피드입니다");
                 }
             }

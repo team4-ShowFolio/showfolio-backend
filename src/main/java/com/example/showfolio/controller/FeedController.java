@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,8 +27,8 @@ public class FeedController {
     public ResponseEntity<FeedResponse> createFeed(
             @Valid @RequestBody FeedCreateRequest request,
 
-            // JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId) {
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         return ResponseEntity.ok(feedService.createFeed(request, currentUserId));
     }
@@ -44,8 +46,8 @@ public class FeedController {
 
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            // JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId) {
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         return ResponseEntity.ok(
                 feedService.searchFeeds(
@@ -57,8 +59,9 @@ public class FeedController {
     public ResponseEntity<Page<FeedResponse>> getLikedFeeds(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            //JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId) {
+
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         return ResponseEntity.ok(
                 feedService.getLikedFeeds(page, size, currentUserId));
@@ -70,8 +73,8 @@ public class FeedController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam List<Long> followingIds,
 
-            // JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId) {
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         return ResponseEntity.ok(
                 feedService.getFollowingFeeds(followingIds, page, currentUserId));
@@ -82,8 +85,8 @@ public class FeedController {
     public ResponseEntity<Page<FeedResponse>> getMyFeeds(
             @RequestParam(defaultValue = "0") int page,
 
-            // JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId) {
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         return ResponseEntity.ok(feedService.getMyFeeds(page, currentUserId));
     }
@@ -93,8 +96,8 @@ public class FeedController {
     public ResponseEntity<Page<FeedResponse>> getFeeds(
             @RequestParam(defaultValue = "0") int page,
 
-            // JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId) {
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         return ResponseEntity.ok(feedService.getFeeds(page, currentUserId));
     }
@@ -104,8 +107,8 @@ public class FeedController {
     public ResponseEntity<FeedResponse> getFeed(
             @PathVariable Long feedId,
 
-            // JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId) {
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         return ResponseEntity.ok(feedService.getFeed(feedId, currentUserId));
     }
@@ -116,8 +119,8 @@ public class FeedController {
             @PathVariable Long feedId,
             @Valid @RequestBody FeedUpdateRequest request,
 
-            // JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId) {
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         return ResponseEntity.ok(feedService.updateFeed(feedId, request, currentUserId));
     }
@@ -127,9 +130,8 @@ public class FeedController {
     public ResponseEntity<Void> deleteFeed(
             @PathVariable Long feedId,
 
-            // JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId) {
-
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
         feedService.deleteFeed(feedId, currentUserId);
         return ResponseEntity.noContent().build();
     }
@@ -139,8 +141,8 @@ public class FeedController {
     public ResponseEntity<FeedLikeResponse> toggleLike(
             @PathVariable Long feedId,
 
-            // JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId) {
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         return ResponseEntity.ok(feedService.toggleLike(feedId, currentUserId));
     }

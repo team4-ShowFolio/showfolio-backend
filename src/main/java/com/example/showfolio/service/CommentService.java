@@ -5,10 +5,10 @@ import com.example.showfolio.dto.request.CommentUpdateRequest;
 import com.example.showfolio.dto.response.CommentResponse;
 import com.example.showfolio.entity.Comment;
 import com.example.showfolio.entity.Feed;
-import com.example.showfolio.entity.User;
+import com.example.showfolio.entity.Member;
 import com.example.showfolio.repository.CommentRepository;
 import com.example.showfolio.repository.FeedRepository;
-import com.example.showfolio.repository.UserRepository;
+import com.example.showfolio.repository.MemberRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,7 +27,7 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final FeedRepository feedRepository;
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
     private final NotificationService notificationService;
 
     // 댓글 작성
@@ -39,7 +39,7 @@ public class CommentService {
         Feed feed = feedRepository.findById(feedId)
                 .orElseThrow(() -> new EntityNotFoundException("피드를 찾을 수 없습니다"));
 
-        User member = userRepository.findById(currentUserId)
+        Member member = memberRepository.findById(currentUserId)
                 .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다"));
 
         Comment parent = null;
@@ -58,7 +58,7 @@ public class CommentService {
 
         Comment comment = Comment.builder()
                 .feed(feed)
-                .user(member)
+                .member(member)
                 .parent(parent)
                 .content(request.getContent())
                 .build();
@@ -68,7 +68,7 @@ public class CommentService {
         // 댓글 알림 생성 (피드 작성자에게)
         notificationService.createCommentNotification(
                 member,
-                feed.getUser(),
+                feed.getMember(),
                 feed
         );
 
@@ -101,7 +101,7 @@ public class CommentService {
             throw new IllegalArgumentException("삭제된 댓글은 수정할 수 없습니다");
         }
 
-        if (!comment.getUser().getId().equals(currentUserId)) {
+        if (!comment.getMember().getId().equals(currentUserId)) {
             throw new IllegalArgumentException("수정 권한이 없습니다");
         }
 
@@ -127,7 +127,7 @@ public class CommentService {
             throw new IllegalArgumentException("이미 삭제된 댓글입니다");
         }
 
-        if (!comment.getUser().getId().equals(currentUserId)) {
+        if (!comment.getMember().getId().equals(currentUserId)) {
             throw new IllegalArgumentException("삭제 권한이 없습니다");
         }
 

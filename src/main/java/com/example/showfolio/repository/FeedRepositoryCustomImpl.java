@@ -6,7 +6,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.example.showfolio.entity.Feed;
 import com.example.showfolio.entity.QFeed;
-import com.example.showfolio.entity.Visibility;
+import com.example.showfolio.enums.Visibility;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -50,7 +50,7 @@ public class FeedRepositoryCustomImpl implements FeedRepositoryCustom {
     public Page<Feed> findFollowingFeeds(List<Long> followingIds, Pageable pageable) {
 
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(feed.user.id.in(followingIds));
+        builder.and(feed.member.id.in(followingIds));
         builder.and(feed.visibility.in(
                 Visibility.PUBLIC,
                 Visibility.FOLLOWERS_ONLY
@@ -78,7 +78,7 @@ public class FeedRepositoryCustomImpl implements FeedRepositoryCustom {
     public Page<Feed> findMyFeeds(Long userId, Pageable pageable) {
 
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(feed.user.id.eq(userId));
+        builder.and(feed.member.id.eq(userId));
 
         List<Feed> content = queryFactory
                 .selectFrom(feed)
@@ -130,7 +130,7 @@ public class FeedRepositoryCustomImpl implements FeedRepositoryCustom {
         }
 
         if (author != null && !author.isBlank()) {
-            builder.and(feed.user.nickname.contains(author));
+            builder.and(feed.member.nickname.contains(author));
         }
 
         // 정렬 조건 (latest - 최신순 ,likes - 좋아요순)

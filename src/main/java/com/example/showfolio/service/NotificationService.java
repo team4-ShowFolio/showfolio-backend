@@ -60,7 +60,7 @@ public class NotificationService {
 
     // 좋아요 알림
     @Transactional
-    public void createLikeNotification(User sender, User receiver, Feed feed) {
+    public void createLikeNotification(Member sender, Member receiver, Feed feed) {
 
         if (sender.getId().equals(receiver.getId())) return;
 
@@ -76,7 +76,7 @@ public class NotificationService {
 
     // 댓글 알림
     @Transactional
-    public void createCommentNotification(User sender, User receiver, Feed feed) {
+    public void createCommentNotification(Member sender, Member receiver, Feed feed) {
 
         if (sender.getId().equals(receiver.getId())) return;
 
@@ -92,7 +92,7 @@ public class NotificationService {
 
     // 멘션 알림
     @Transactional
-    public void createMentionNotification(User sender, User receiver, Feed feed) {
+    public void createMentionNotification(Member sender, Member receiver, Feed feed) {
 
         if (sender.getId().equals(receiver.getId())) return;
 

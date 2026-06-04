@@ -1,7 +1,7 @@
 package com.example.showfolio.controller;
 
-import com.example.showfolio.DTO.response.FollowCountResponse;
-import com.example.showfolio.DTO.response.FollowResponse;
+import com.example.showfolio.dto.response.FollowCountResponse;
+import com.example.showfolio.dto.response.FollowResponse;
 import com.example.showfolio.service.FollowService;
 import com.example.showfolio.util.JwtUtil;
 import lombok.RequiredArgsConstructor;

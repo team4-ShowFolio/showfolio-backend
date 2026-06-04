@@ -1,4 +1,4 @@
-package com.example.showfolio.entity;
+package com.example.showfolio.enums;
 
 public enum Visibility {
     PUBLIC,

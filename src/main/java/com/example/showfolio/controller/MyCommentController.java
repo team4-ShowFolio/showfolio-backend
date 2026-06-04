@@ -5,6 +5,8 @@ import com.example.showfolio.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,8 +21,8 @@ public class MyCommentController {
     public ResponseEntity<Page<CommentResponse>> getMyComments(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            // JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId) {
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         return ResponseEntity.ok(
                 commentService.getMyComments(page, size, currentUserId));
@@ -30,8 +32,8 @@ public class MyCommentController {
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(
             @PathVariable Long commentId,
-            // JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId) {
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         commentService.deleteComment(commentId, currentUserId);
         return ResponseEntity.noContent().build();

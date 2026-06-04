@@ -4,6 +4,8 @@ import com.example.showfolio.dto.response.ImageResponse;
 import com.example.showfolio.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,9 +19,9 @@ public class ImageController {
     // 이미지 업로드
     @PostMapping("/upload")
     public ResponseEntity<ImageResponse> uploadImage(
-            // JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId,
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam("file") MultipartFile file,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         return ResponseEntity.ok(imageService.uploadImage(file));
     }
@@ -27,9 +29,9 @@ public class ImageController {
     // 이미지 삭제
     @DeleteMapping("/{filename}")
     public ResponseEntity<Void> deleteImage(
-            // JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId,
-            @PathVariable String filename) {
+            @PathVariable String filename,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         imageService.deleteImage(filename);
         return ResponseEntity.noContent().build();

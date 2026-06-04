@@ -31,9 +31,9 @@ public class FeedResponse {
     public static FeedResponse from(Feed feed, boolean isLiked) {
         return FeedResponse.builder()
                 .id(feed.getId())
-                .userId(feed.getUser().getId())
-                .userNickname(feed.getUser().getNickname())
-                .userProfileImage(feed.getUser().getProfileImage())
+                .userId(feed.getMember().getId())
+                .userNickname(feed.getMember().getNickname())
+                .userProfileImage(feed.getMember().getProfileImage())
                 .title(feed.getTitle())
                 .content(feed.getContent())
                 .visibility(feed.getVisibility().name())

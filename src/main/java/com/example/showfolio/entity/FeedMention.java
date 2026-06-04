@@ -25,7 +25,7 @@ public class FeedMention {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mentioned_user_id", nullable = false)
-    private User mentionedUser;
+    private Member mentionedUser;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

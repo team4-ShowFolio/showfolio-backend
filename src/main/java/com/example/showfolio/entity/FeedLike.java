@@ -25,7 +25,7 @@ public class FeedLike {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private Member user;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

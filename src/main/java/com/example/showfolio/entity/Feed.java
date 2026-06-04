@@ -1,5 +1,6 @@
 package com.example.showfolio.entity;
 
+import com.example.showfolio.enums.Visibility;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -23,7 +24,7 @@ public class Feed {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private Member member;
 
     @Column(length = 100)
     private String title;

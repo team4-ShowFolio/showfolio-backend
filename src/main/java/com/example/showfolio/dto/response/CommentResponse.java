@@ -26,9 +26,9 @@ public class CommentResponse {
         return CommentResponse.builder()
                 .id(comment.getId())
                 .feedId(comment.getFeed().getId())
-                .userId(comment.getUser().getId())
-                .userNickname(comment.getUser().getNickname())
-                .userProfileImage(comment.getUser().getProfileImage())
+                .userId(comment.getMember().getId())
+                .userNickname(comment.getMember().getNickname())
+                .userProfileImage(comment.getMember().getProfileImage())
                 .parentId(comment.getParent() != null
                         ? comment.getParent().getId()
                         : null)

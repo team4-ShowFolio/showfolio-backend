@@ -7,6 +7,8 @@ import com.example.showfolio.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,8 +26,8 @@ public class CommentController {
             @PathVariable Long feedId,
             @Valid @RequestBody CommentCreateRequest request,
 
-            // JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId) {
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         return ResponseEntity.ok(
                 commentService.createComment(feedId, request, currentUserId));
@@ -46,8 +48,8 @@ public class CommentController {
             @PathVariable Long commentId,
             @Valid @RequestBody CommentUpdateRequest request,
 
-            // JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId) {
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         return ResponseEntity.ok(
                 commentService.updateComment(commentId, request, currentUserId));
@@ -59,8 +61,8 @@ public class CommentController {
             @PathVariable Long feedId,
             @PathVariable Long commentId,
 
-            // JWT 완성 후 @AuthenticationPrincipal Long currentUserId로 교체
-            @RequestHeader("X-User-Id") Long currentUserId) {
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         commentService.deleteComment(commentId, currentUserId);
         return ResponseEntity.noContent().build();
