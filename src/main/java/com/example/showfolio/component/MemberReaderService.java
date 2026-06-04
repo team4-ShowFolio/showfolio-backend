@@ -3,7 +3,11 @@ package com.example.showfolio.component;
 import com.example.showfolio.dto.AdminMemberDetailResponse;
 import com.example.showfolio.dto.AdminMemberResponse;
 import com.example.showfolio.dto.MemberSearchCondition;
+import com.example.showfolio.dto.RecentCommentResponse;
+import com.example.showfolio.dto.RecentFeedResponse;
 import com.example.showfolio.entity.Member;
+import com.example.showfolio.repository.CommentRepository;
+import com.example.showfolio.repository.FeedRepository;
 import com.example.showfolio.repository.MemberRepository;
 import com.example.showfolio.port.MemberReader;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import java.time.ZoneId;
 import java.util.List;
 
 @Component
@@ -19,18 +24,40 @@ import java.util.List;
 public class MemberReaderService implements MemberReader {
 
     private final MemberRepository memberRepository;
+    private final FeedRepository feedRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     public AdminMemberDetailResponse getById(Long userId) {
         Member member = memberRepository.findById(userId)
-                .orElseGet(Member::new);
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
-        // TODO Feed, Comment 개수 및 목록 조회 필요
+        long feedCount = feedRepository.countByMemberId(userId);
+        int commentCount = (int) commentRepository.countByMemberIdAndDeletedAtIsNull(userId);
+
+        List<RecentFeedResponse> recentFeeds = feedRepository.findTop5ByMemberIdOrderByCreatedAtDesc(userId)
+                .stream()
+                .map(f -> new RecentFeedResponse(
+                        f.getId(),
+                        f.getTitle(),
+                        f.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()
+                ))
+                .toList();
+
+        List<RecentCommentResponse> recentComments = commentRepository.findTop5ByMemberIdAndDeletedAtIsNullOrderByCreatedAtDesc(userId)
+                .stream()
+                .map(c -> new RecentCommentResponse(
+                        c.getId(),
+                        c.getContent(),
+                        c.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()
+                ))
+                .toList();
+
         return new AdminMemberDetailResponse(
                 member.getId(), member.getNickname(), member.getEmail(), member.getEmail(),
                 member.getRole(), null, member.getCreatedAt(),
-                List.of(), 0, 0,
-                List.of(), List.of(), List.of()
+                List.of(), feedCount, commentCount,
+                List.of(), recentFeeds, recentComments
         );
     }
 
