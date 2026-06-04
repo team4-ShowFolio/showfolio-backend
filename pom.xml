@@ -9,9 +9,9 @@
 		<relativePath/>
 	</parent>
 
-	<groupId>com.sec01</groupId>
-	<artifactId>showFilo</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<groupId>com.example</groupId>
+	<artifactId>ShowFolio</artifactId>
+	<version>21</version>
 	<name>showFilo</name>
 	<description>showFilo</description>
 	<url/>
