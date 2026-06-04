@@ -1,4 +1,4 @@
-package com.example.showfolio.DTO.response;
+package com.example.showfolio.dto.response;
 
 import com.example.showfolio.entity.UserTechStack;
 import lombok.Getter;

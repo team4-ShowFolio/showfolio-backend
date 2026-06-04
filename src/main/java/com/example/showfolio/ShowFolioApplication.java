@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ShowFiloApplication {
+public class ShowFolioApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(ShowFiloApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(ShowFolioApplication.class, args);
+	}
 
 }
