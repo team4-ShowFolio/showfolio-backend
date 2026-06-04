@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: showFilo
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/showfolio?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: gustjq0826@
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  # 소셜 로그인 설정 추가!
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: Ov23liWiYh4aBm4qGQ0e
+            client-secret: 2141cb3c1dac8e9e4b87717f118dc6d303c49a13
+            scope:
+              - user:email
+              - read:user
+
+jwt:
+  secret: showfolio-secret-key-2024-abcdefghijklmnopqrstuvwxyz123456
+  access-expiration: 3600000
+  refresh-expiration: 1209600000
+
+server:
+  port: 8080
