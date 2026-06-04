@@ -1,13 +1,13 @@
 package com.example.showfolio.service;
 
-import com.example.showfolio.DTO.request.LoginRequest;
-import com.example.showfolio.DTO.request.SignupRequest;
-import com.example.showfolio.DTO.request.TechStackRequest;
-import com.example.showfolio.DTO.request.UpdateProfileRequest;
-import com.example.showfolio.DTO.response.LoginResponse;
-import com.example.showfolio.DTO.response.MemberResponse;
-import com.example.showfolio.DTO.response.TechStackResponse;
-import com.example.showfolio.DTO.response.TokenResponse;
+import com.example.showfolio.dto.request.LoginRequest;
+import com.example.showfolio.dto.request.SignupRequest;
+import com.example.showfolio.dto.request.TechStackRequest;
+import com.example.showfolio.dto.request.UpdateProfileRequest;
+import com.example.showfolio.dto.response.LoginResponse;
+import com.example.showfolio.dto.response.MemberResponse;
+import com.example.showfolio.dto.response.TechStackResponse;
+import com.example.showfolio.dto.response.TokenResponse;
 import com.example.showfolio.entity.Member;
 import com.example.showfolio.entity.RefreshToken;
 import com.example.showfolio.entity.UserTechStack;

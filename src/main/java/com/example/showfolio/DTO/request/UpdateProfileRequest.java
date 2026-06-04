@@ -1,4 +1,4 @@
-package com.example.showfolio.DTO.request;
+package com.example.showfolio.dto.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

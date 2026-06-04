@@ -1,9 +1,9 @@
 package com.example.showfolio.controller;
 
-import com.example.showfolio.DTO.request.LoginRequest;
-import com.example.showfolio.DTO.request.SignupRequest;
-import com.example.showfolio.DTO.request.TechStackRequest;
-import com.example.showfolio.DTO.request.UpdateProfileRequest;
+import com.example.showfolio.dto.request.LoginRequest;
+import com.example.showfolio.dto.request.SignupRequest;
+import com.example.showfolio.dto.request.TechStackRequest;
+import com.example.showfolio.dto.request.UpdateProfileRequest;
 import com.example.showfolio.service.AuthService;
 import com.example.showfolio.util.JwtUtil;
 import lombok.RequiredArgsConstructor;

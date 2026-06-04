@@ -1,7 +1,7 @@
 package com.example.showfolio.service;
 
-import com.example.showfolio.DTO.response.FollowCountResponse;
-import com.example.showfolio.DTO.response.FollowResponse;
+import com.example.showfolio.dto.response.FollowCountResponse;
+import com.example.showfolio.dto.response.FollowResponse;
 import com.example.showfolio.entity.Follow;
 import com.example.showfolio.entity.Member;
 import com.example.showfolio.repository.FollowRepository;
