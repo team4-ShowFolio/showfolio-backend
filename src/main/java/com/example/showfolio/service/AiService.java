@@ -320,7 +320,10 @@ public class AiService {
         // 사용자 피드조회
         // 최신 피드 20개만 가져옴
         List<Feed> feeds =
-                feedRepository.findByMember(member, PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "createdAt"));
+                feedRepository.findByMember(
+                        member,
+                        PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "createdAt"))
+                );
 
 
         // 3. LLM에 보낼 텍스트 전처리 (StringBuilder 힙 메모리 최적화)
