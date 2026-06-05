@@ -7,6 +7,7 @@ import com.example.showfolio.dto.RecentCommentResponse;
 import com.example.showfolio.dto.RecentFeedResponse;
 import com.example.showfolio.dto.ReportResponse;
 import com.example.showfolio.entity.Member;
+import com.example.showfolio.enums.MemberStatus;
 import com.example.showfolio.repository.CommentRepository;
 import com.example.showfolio.repository.FeedRepository;
 import com.example.showfolio.repository.MemberRepository;
@@ -87,9 +88,9 @@ public class MemberReaderService implements MemberReader {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("role"), condition.role()));
         }
         if (condition.status() != null) {
-            if ("DELETED".equalsIgnoreCase(condition.status())) {
+            if (condition.status() == MemberStatus.DELETED) {
                 spec = spec.and((root, query, cb) -> cb.isNotNull(root.get("deletedAt")));
-            } else if ("ACTIVE".equalsIgnoreCase(condition.status())) {
+            } else if (condition.status() == MemberStatus.ACTIVE) {
                 spec = spec.and((root, query, cb) -> cb.isNull(root.get("deletedAt")));
             }
         }

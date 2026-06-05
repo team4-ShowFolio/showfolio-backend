@@ -1,6 +1,7 @@
 package com.example.showfolio.component;
 
 import com.example.showfolio.entity.Member;
+import com.example.showfolio.enums.MemberStatus;
 import com.example.showfolio.repository.MemberRepository;
 import com.example.showfolio.port.MemberStatusUpdater;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,7 @@ public class MemberStatusUpdaterService implements MemberStatusUpdater {
 
     @Override
     @Transactional
-    public void updateStatus(Long userId, String status) {
+    public void updateStatus(Long userId, MemberStatus status) {
         Member member = memberRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
