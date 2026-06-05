@@ -17,9 +17,8 @@ public class MemberRoleUpdaterService implements MemberRoleUpdater {
     @Override
     @Transactional
     public void updateRole(Long userId, Role role) {
-        // TODO 회원 기능 병합 후 orElseGet(Member::new) → orElseThrow로 변경
         Member member = memberRepository.findById(userId)
-                .orElseGet(Member::new);
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
         member.setRole(role);
         memberRepository.save(member);

@@ -8,7 +8,7 @@ import com.example.showfolio.dto.ReportProcessRequest;
  */
 public interface ReportProcessor {
 
-    void process(Long reportId, ReportProcessRequest request);
+    void process(Long reportId, Long adminId, ReportProcessRequest request);
 
-    void update(Long reportId, ReportProcessRequest request);
+    void update(Long reportId, Long adminId, ReportProcessRequest request);
 }

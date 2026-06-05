@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -42,7 +43,9 @@ public class AdminReportController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> update(@PathVariable Long id, @Valid @RequestBody ReportProcessRequest request) {
-        reportProcessor.update(id, request);
+        Long adminId = Long.parseLong(
+                SecurityContextHolder.getContext().getAuthentication().getName());
+        reportProcessor.update(id, adminId, request);
         return ResponseEntity.noContent().build();
     }
 }
