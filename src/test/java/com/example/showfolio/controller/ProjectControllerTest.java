@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -41,6 +42,9 @@ class ProjectControllerTest {
     // 머지된 develop의 보안 필터(JwtFilter) 의존성 — 웹 슬라이스에 없어 목으로 제공
     @MockitoBean JwtUtil jwtUtil;
     @MockitoBean UserDetailsService userDetailsService;
+
+    // ShowFolioApplication의 @EnableJpaAuditing 때문에 웹 슬라이스에서 필요 (JPA metamodel 비어있음 방지)
+    @MockitoBean JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
     private ProjectResponse sample() {
         return new ProjectResponse(
