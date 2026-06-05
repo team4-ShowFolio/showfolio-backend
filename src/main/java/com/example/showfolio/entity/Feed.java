@@ -39,14 +39,9 @@ public class Feed {
     private Visibility visibility;
 
     // 프로젝트 연결
-
-    @Column(name = "project_id")
-    private Long projectId;
-
-    // Project 병합 시 아래 코드 주석풀고 위에 코드 삭제
-    // @ManyToOne(fetch = FetchType.LAZY)
-    // @JoinColumn(name = "project_id")
-    // private Project project;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private Project project;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -85,11 +80,11 @@ public class Feed {
     private List<FeedMention> mentions = new ArrayList<>();
 
     // 수정 메서드
-    public void update(String title, String content, Visibility visibility, Long projectId) {
+    public void update(String title, String content, Visibility visibility, Project project) {
         this.title = title;
         this.content = content;
         this.visibility = visibility;
-        this.projectId = projectId;
+        this.project = project;
     }
 
     // 소프트 딜리트
