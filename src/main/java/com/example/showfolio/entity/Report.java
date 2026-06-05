@@ -46,9 +46,9 @@ public class Report {
     @Column(updatable = false)
     private Instant createdAt;
 
-    public static Report from(ReportCreateRequest request) {
+    public static Report from(Long reporterId, ReportCreateRequest request) {
         Report report = new Report();
-        report.reporterId = request.reporterId();
+        report.reporterId = reporterId;
         report.targetId = request.targetId();
         report.targetType = request.targetType();
         report.reportReason = request.reportReason();

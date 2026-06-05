@@ -21,14 +21,13 @@ public class ReportCreateService implements Reporter {
 
     @Override
     @Transactional
-    public void report(ReportCreateRequest request) {
-        // 다른 서비스에서 호출할 가능성이 있으므로, 검증 로직도 작성합니다.
-        reportValidator.validateDuplicateReport(request.reporterId(), request.targetId(), request.targetType());
-        reportValidator.validateSelfReport(request.reporterId(), request.targetId(), request.targetType());
+    public void report(Long reporterId, ReportCreateRequest request) {
+        reportValidator.validateDuplicateReport(reporterId, request.targetId(), request.targetType());
+        reportValidator.validateSelfReport(reporterId, request.targetId(), request.targetType());
         reportValidator.validateTargetExists(request.targetId(), request.targetType());
         reportValidator.validateReportReason(request.reportReason(), request.content());
 
-        Report report = reportRepository.save(Report.from(request));
+        Report report = reportRepository.save(Report.from(reporterId, request));
         eventPublisher.publishEvent(new ReportCreatedEvent(report));
     }
 }

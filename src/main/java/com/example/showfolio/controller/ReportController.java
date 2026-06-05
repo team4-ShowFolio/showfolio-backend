@@ -5,6 +5,7 @@ import com.example.showfolio.service.ReportCreateService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +22,9 @@ public class ReportController {
     public ResponseEntity<Void> createReport(
             @Valid @RequestBody ReportCreateRequest request
     ) {
-        reportCreateService.report(request);
+        Long reporterId = Long.parseLong(
+                SecurityContextHolder.getContext().getAuthentication().getName());
+        reportCreateService.report(reporterId, request);
         return ResponseEntity.noContent().build();
     }
 }
