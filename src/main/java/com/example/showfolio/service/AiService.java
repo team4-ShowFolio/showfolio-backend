@@ -26,6 +26,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
@@ -44,7 +45,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AiService {
 
-    private final ChatClient.Builder chatClientBuilder;
+    private final ChatClient chatClient;
     private final AiUsageRepository aiUsageRepository;
 
     private final MemberRepository memberRepository;
@@ -158,8 +159,7 @@ public class AiService {
         UsageSnapshot snapshot = validateAndGetUsage(memberId);
 
         // 2. LLM 호출 : ChatClient로 Gemini 호출 (메타데이터까지 받기)
-        ChatResponse response = chatClientBuilder.build()
-                .prompt()
+        ChatResponse response = chatClient.prompt()
                 .system(AiPromptType.DESCRIPTION_IMPROVE.system())
                 .user(request.description())
                 .call()
@@ -187,6 +187,16 @@ public class AiService {
 //            "WHERE p.id = :id")
 //    Optional<Project> findByIdWithTechStacks(@Param("id") Long id);
 
+//    public boolean isOwnedBy(Long memberId) {
+//        // 1. 방어 코드: 프로젝트에 연결된 member 객체 자체가 없거나, 비교하려는 id가 null이면 false
+//        if (this.member == null || memberId == null) {
+//            return false;
+//        }
+//
+//        // 2. Member 객체 내부의 id와 파라미터로 넘어온 memberId를 비교
+//        // 엔티티 ID는 자바 객체(Long)이므로 반드시 .equals()로 동등성 비교를 해야 안전합니다.
+//        return this.member.getId().equals(memberId);
+//    }
     // 이력서용 문장 자동 변환
     @Transactional
     public ResumeConvertResponse convertToResume(Long memberId, Long projectId) {
@@ -205,8 +215,7 @@ public class AiService {
         String userInput = buildResumeInput(project);
 
         // 4. LLM 호출 : ChatClient로 Gemini 호출 (메타데이터까지 받기)
-        ChatResponse response = chatClientBuilder.build()
-                .prompt()
+        ChatResponse response = chatClient.prompt()
                 .system(AiPromptType.RESUME_CONVERT.system())
                 .user(userInput)
                 .call()
@@ -277,9 +286,9 @@ public class AiService {
     // 포트폴리오 피드백용 (회원의 모든 프로젝트 + 각 기술 스택), 최근 N개 조회
 //    @Query("SELECT p FROM Project p " +
 //            "LEFT JOIN FETCH p.techStacks " +
-//            "WHERE p.memberId = :memberId " +
+//            "WHERE p.member = :member " +
 //            "ORDER BY p.createdAt DESC")
-//    List<Project> findAllByMemberIdWithTechStacks(@Param("memberId") Long memberId, Pageable pageable);
+//    List<Project> findAllByMemberWithTechStacks(@Param("member") Member member, Pageable pageable);
 
     // 프토폴리오 피드백
     @Transactional
@@ -301,7 +310,7 @@ public class AiService {
         // 사용자 프로젝트 + 프로젝트별 기술스택 조회
         // 최신 프로젝트 10개만 가져옴
         List<Project> projects =
-                projectRepository.findAllByMemberIdWithTechStacks(memberId, PageRequest.of(0, 10));
+                projectRepository.findAllByMemberWithTechStacks(member, PageRequest.of(0, 10));
 
         // 프로젝트 존재 여부 검증 : 프로젝트가 0개인 경우 피드백 생성 불가
         if (projects == null || projects.isEmpty()) {
@@ -311,7 +320,7 @@ public class AiService {
         // 사용자 피드조회
         // 최신 피드 20개만 가져옴
         List<Feed> feeds =
-                feedRepository.findRecentByMemberId(memberId, PageRequest.of(0, 20));
+                feedRepository.findByMember(member, PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "createdAt"));
 
 
         // 3. LLM에 보낼 텍스트 전처리 (StringBuilder 힙 메모리 최적화)
@@ -319,8 +328,7 @@ public class AiService {
                 member, userTechStacks, projects, feeds);
 
         // 4. LLM 호출 : ChatClient로 Gemini 호출 (메타데이터까지 받기), JSON 스트링 획득
-        ChatResponse response = chatClientBuilder.build()
-                .prompt()
+        ChatResponse response = chatClient.prompt()
                 .system(AiPromptType.PORTFOLIO_FEEDBACK.system())
                 .user(portfolioText)
                 .call()
@@ -481,7 +489,7 @@ public class AiService {
         // 사용자 프로젝트 + 프로젝트별 기술스택 조회
         // 최신 프로젝트 10개만 가져옴
         List<Project> projects = projectRepository
-                .findAllByMemberIdWithTechStacks(memberId, PageRequest.of(0, 10));
+                .findAllByMemberWithTechStacks(member, PageRequest.of(0, 10));
 
         // 프로젝트 존재 여부 검증 : 프로젝트가 0개인 경우 피드백 생성 불가
         if (projects == null || projects.isEmpty()) {
@@ -490,16 +498,17 @@ public class AiService {
 
         // 사용자 피드조회
         // 최신 피드 20개만 가져옴
-        List<Feed> feeds = feedRepository
-                .findRecentByMemberId(memberId, PageRequest.of(0, 20));
+        List<Feed> feeds = feedRepository.findByMember(
+                member,
+                PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "createdAt"))
+        );
 
         // 3. LLM에 보낼 텍스트 조립 (포트폴리오 피드백과 동일한 메서드 재사용)
         String portfolioText = buildPortfolioText(
                 member, userTechStacks, projects, feeds);
 
         // 4. LLM 호출 : ChatClient로 Gemini 호출 (메타데이터까지 받기), JSON 스트링 획득
-        ChatResponse response = chatClientBuilder.build()
-                .prompt()
+        ChatResponse response = chatClient.prompt()
                 .system(AiPromptType.PORTFOLIO_PDF.system())
                 .user(portfolioText)
                 .call()
