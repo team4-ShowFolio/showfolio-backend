@@ -184,22 +184,7 @@ public class AiService {
 
     //===================================================================================================//
 
-// 이력서 변환에서 필요한 정보인 프로젝트와 기술 스택을 한 번에 가져옴.
-//    @Query("SELECT p FROM Project p " +
-//            "LEFT JOIN FETCH p.techStacks " +
-//            "WHERE p.id = :id")
-//    Optional<Project> findByIdWithTechStacks(@Param("id") Long id);
-
-//    public boolean isOwnedBy(Long memberId) {
-//        // 1. 방어 코드: 프로젝트에 연결된 member 객체 자체가 없거나, 비교하려는 id가 null이면 false
-//        if (this.member == null || memberId == null) {
-//            return false;
-//        }
-//
-//        // 2. Member 객체 내부의 id와 파라미터로 넘어온 memberId를 비교
-//        // 엔티티 ID는 자바 객체(Long)이므로 반드시 .equals()로 동등성 비교를 해야 안전합니다.
-//        return this.member.getId().equals(memberId);
-//    }
+    // 이력서 변환에서 필요한 정보인 프로젝트와 기술 스택을 한 번에 가져옴.
     // 이력서용 문장 자동 변환
     @Transactional
     public ResumeConvertResponse convertToResume(Long memberId, Long projectId) {
@@ -243,10 +228,10 @@ public class AiService {
     private String buildResumeInput(Project project) {
         StringBuilder sb = new StringBuilder();
 
-//     프로젝트 명
+        // 프로젝트 명
         sb.append("프로젝트명: ").append(project.getTitle()).append("\n");
 
-//     설명
+        // 설명
             sb.append("설명: ").append(project.getDescription()).append("\n");
 
         // 기간 정보 (둘 다 있을 때만)
@@ -287,12 +272,6 @@ public class AiService {
     //===================================================================================================//
 
     // 포트폴리오 피드백용 (회원의 모든 프로젝트 + 각 기술 스택), 최근 N개 조회
-//    @Query("SELECT p FROM Project p " +
-//            "LEFT JOIN FETCH p.techStacks " +
-//            "WHERE p.member = :member " +
-//            "ORDER BY p.createdAt DESC")
-//    List<Project> findAllByMemberWithTechStacks(@Param("member") Member member, Pageable pageable);
-
     // 프토폴리오 피드백
     @Transactional
     public PortfolioFeedbackResponse generatePortfolioFeedback(
@@ -313,7 +292,7 @@ public class AiService {
         // 사용자 프로젝트 + 프로젝트별 기술스택 조회
         // 최신 프로젝트 10개만 가져옴
         List<Project> projects =
-                projectRepository.findAllByMemberWithTechStacks(member, PageRequest.of(0, 10));
+                projectRepository.findAllByMemberIdWithTechStacks(memberId, PageRequest.of(0, 10));
 
         // 프로젝트 존재 여부 검증 : 프로젝트가 0개인 경우 피드백 생성 불가
         if (projects == null || projects.isEmpty()) {
@@ -495,7 +474,7 @@ public class AiService {
         // 사용자 프로젝트 + 프로젝트별 기술스택 조회
         // 최신 프로젝트 10개만 가져옴
         List<Project> projects = projectRepository
-                .findAllByMemberWithTechStacks(member, PageRequest.of(0, 10));
+                .findAllByMemberIdWithTechStacks(memberId, PageRequest.of(0, 10));
 
         // 프로젝트 존재 여부 검증 : 프로젝트가 0개인 경우 피드백 생성 불가
         if (projects == null || projects.isEmpty()) {

@@ -32,9 +32,10 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, Project
     Optional<Project> findByIdWithTechStacks(@Param("id") Long id);
 
     // AI 제공용 — portfolioFeedback (회원 프로젝트 + 기술스택, 최신순)
-    // Project는 Member 연관이 없어 memberId로 매칭 (SpEL로 member.id 추출)
-    @Query("SELECT DISTINCT p FROM Project p LEFT JOIN FETCH p.techStacks "
-            + "WHERE p.memberId = :#{#member.id} ORDER BY p.createdAt DESC")
-    List<Project> findAllByMemberWithTechStacks(@Param("member") Member member, Pageable pageable);
+    @Query("SELECT DISTINCT p FROM Project p " +
+            "LEFT JOIN FETCH p.techStacks " +
+            "WHERE p.memberId = :memberId " +
+            "ORDER BY p.createdAt DESC")
+    List<Project> findAllByMemberIdWithTechStacks(@Param("memberId") Long memberId, Pageable pageable);
 
 }

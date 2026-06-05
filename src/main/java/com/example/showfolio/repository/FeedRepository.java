@@ -15,11 +15,6 @@ public interface FeedRepository extends JpaRepository<Feed, Long>, FeedRepositor
 
     List<Feed> findTop5ByMemberIdOrderByCreatedAtDesc(Long memberId);
 
-    // 포트폴리오 피드백용, 최근 N개 조회
-    @Query("SELECT f FROM Feed f WHERE f.member.id = :memberId " +
-            "ORDER BY f.createdAt DESC")
-    List<Feed> findRecentByMemberId(@Param("memberId") Long memberId, Pageable pageable);
-
     // 포트폴리오 피드백용, N개 조회
     List<Feed> findByMember(Member member, Pageable pageable);
 
