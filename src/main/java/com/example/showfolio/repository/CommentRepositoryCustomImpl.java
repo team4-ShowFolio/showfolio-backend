@@ -21,10 +21,10 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(comment.feed.id.eq(feedId));
         builder.and(comment.parent.isNull());
-        builder.and(comment.deletedAt.isNull());
 
         return queryFactory
                 .selectFrom(comment)
+                .leftJoin(comment.member).fetchJoin() //N+1 문제 해결
                 .where(builder)
                 .orderBy(comment.createdAt.asc())
                 .fetch();
@@ -36,10 +36,10 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(comment.parent.id.eq(parentId));
-        builder.and(comment.deletedAt.isNull());
 
         return queryFactory
                 .selectFrom(comment)
+                .leftJoin(comment.member).fetchJoin() //N+1 문제 해결
                 .where(builder)
                 .orderBy(comment.createdAt.asc())
                 .fetch();

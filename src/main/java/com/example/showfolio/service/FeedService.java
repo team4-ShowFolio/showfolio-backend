@@ -29,6 +29,7 @@ public class FeedService {
     private final FeedMentionRepository feedMentionRepository;
     private final MemberRepository memberRepository;
     private final NotificationService notificationService;
+    private final FollowRepository followRepository;
 
 
     // 피드 작성
@@ -48,7 +49,7 @@ public class FeedService {
                 .member(member)
                 .title(request.getTitle())
                 .content(request.getContent())
-                .visibility(Visibility.valueOf(request.getVisibility()))
+                .visibility(request.getVisibility())
                 .projectId(request.getProjectId())
                 .build();
 
@@ -104,7 +105,7 @@ public class FeedService {
         validateVisibility(feed, currentUserId);
 
         boolean isLiked = feedLikeRepository
-                .existsByFeedIdAndUserId(feedId, currentUserId);
+                .existsByFeedIdAndMemberId(feedId, currentUserId);
 
         return FeedResponse.from(feed, isLiked);
     }
@@ -125,7 +126,7 @@ public class FeedService {
         feed.update(
                 request.getTitle(),
                 request.getContent(),
-                Visibility.valueOf(request.getVisibility()),
+                request.getVisibility(),
                 request.getProjectId()
         );
 
@@ -167,7 +168,7 @@ public class FeedService {
         });
 
         boolean isLiked = feedLikeRepository
-                .existsByFeedIdAndUserId(feedId, currentUserId);
+                .existsByFeedIdAndMemberId(feedId, currentUserId);
 
         return FeedResponse.from(feed, isLiked);
     }
@@ -183,6 +184,11 @@ public class FeedService {
             throw new IllegalArgumentException("삭제 권한이 없습니다");
         }
 
+        feedImageRepository.deleteByFeedId(feedId);
+        feedTagRepository.deleteByFeedId(feedId);
+        feedMentionRepository.deleteByFeedId(feedId);
+        feedLikeRepository.deleteByFeedId(feedId);
+
         feedRepository.delete(feed);
     }
 
@@ -197,7 +203,7 @@ public class FeedService {
 
         return feeds.map(feed -> {
             boolean isLiked = feedLikeRepository
-                    .existsByFeedIdAndUserId(feed.getId(), currentUserId);
+                    .existsByFeedIdAndMemberId(feed.getId(), currentUserId);
             return FeedResponse.from(feed, isLiked);
         });
     }
@@ -214,7 +220,7 @@ public class FeedService {
 
         return feeds.map(feed -> {
             boolean isLiked = feedLikeRepository
-                    .existsByFeedIdAndUserId(feed.getId(), currentUserId);
+                    .existsByFeedIdAndMemberId(feed.getId(), currentUserId);
             return FeedResponse.from(feed, isLiked);
         });
     }
@@ -227,7 +233,7 @@ public class FeedService {
 
         return feeds.map(feed -> {
             boolean isLiked = feedLikeRepository
-                    .existsByFeedIdAndUserId(feed.getId(), currentUserId);
+                    .existsByFeedIdAndMemberId(feed.getId(), currentUserId);
             return FeedResponse.from(feed, isLiked);
         });
     }
@@ -243,16 +249,18 @@ public class FeedService {
                 .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다"));
 
         boolean isLiked = feedLikeRepository
-                .existsByFeedIdAndUserId(feedId, currentUserId);
+                .existsByFeedIdAndMemberId(feedId, currentUserId);
 
         if (isLiked) {
-            feedLikeRepository.deleteByFeedIdAndUserId(feedId, currentUserId);
+            feedLikeRepository.deleteByFeedIdAndMemberId(feedId, currentUserId);
+            feed.decreaseLikeCount();
         } else {
             FeedLike feedLike = FeedLike.builder()
                     .feed(feed)
-                    .user(member)
+                    .member(member)
                     .build();
             feedLikeRepository.save(feedLike);
+            feed.increaseLikeCount();
 
             // 좋아요 알림 생성
             notificationService.createLikeNotification(
@@ -262,9 +270,8 @@ public class FeedService {
             );
         }
 
-        int likeCount = feedLikeRepository.countByFeedId(feedId);
 
-        return FeedLikeResponse.of(feedId, likeCount, !isLiked);
+        return FeedLikeResponse.of(feedId, feed.getLikeCount(), !isLiked);
     }
 
     // 좋아요한 피드 목록
@@ -275,7 +282,7 @@ public class FeedService {
 
         Pageable pageable = PageRequest.of(page, size);
         Page<Feed> feeds = feedLikeRepository
-                .findLikedFeedsByUserId(currentUserId, pageable);
+                .findLikedFeedsByMemberId(currentUserId, pageable);
 
         return feeds.map(feed ->
                 FeedResponse.from(feed, true)
@@ -298,7 +305,7 @@ public class FeedService {
 
         return feeds.map(feed -> {
             boolean isLiked = feedLikeRepository
-                    .existsByFeedIdAndUserId(feed.getId(), currentUserId);
+                    .existsByFeedIdAndMemberId(feed.getId(), currentUserId);
             return FeedResponse.from(feed, isLiked);
         });
     }
@@ -312,7 +319,24 @@ public class FeedService {
                 }
             }
             case FOLLOWERS_ONLY -> {
+                // 작성자 본인이 아닐 때만 팔로우 체크 진행
+                if (!feed.getMember().getId().equals(currentUserId)) {
 
+                    // 현재 로그인한 내 엔티티 찾기
+                    Member me = memberRepository.findById(currentUserId)
+                            .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다"));
+
+                    //피드 작성자 엔티티 가져오기
+                    Member blogger = feed.getMember();
+
+                    //내가(follower) 글쓴이(following)를 팔로우하고 있는지 followRepository로 확인
+                    boolean isFollowing = followRepository.existsByFollowerAndFollowing(me, blogger);
+
+                    // 팔로우 상태가 아니라면 예외 발생
+                    if (!isFollowing) {
+                        throw new IllegalArgumentException("팔로워만 볼 수 있는 피드입니다");
+                    }
+                }
             }
             case PUBLIC -> {
 
