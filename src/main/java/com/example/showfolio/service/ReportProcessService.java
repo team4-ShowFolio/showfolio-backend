@@ -36,7 +36,7 @@ public class ReportProcessService implements ReportProcessor {
 
     @Override
     @Transactional
-    public void process(Long reportId, ReportProcessRequest request) {
+    public void process(Long reportId, Long adminId, ReportProcessRequest request) {
         if (reportProcessRepository.existsByReportId(reportId)) {
             throw new IllegalStateException("이미 처리된 신고입니다.");
         }
@@ -49,15 +49,15 @@ public class ReportProcessService implements ReportProcessor {
             throw new IllegalArgumentException("지원하지 않는 처리 상태입니다: " + request.status());
         }
 
-        handler.handle(report, request.adminId(), request.reason());
+        handler.handle(report, adminId, request.reason());
     }
 
     @Override
     @Transactional
-    public void update(Long reportId, ReportProcessRequest request) {
+    public void update(Long reportId, Long adminId, ReportProcessRequest request) {
         ReportProcess reportProcess = reportProcessRepository.findByReportId(reportId)
                 .orElseThrow(() -> new IllegalArgumentException("처리 내역이 존재하지 않습니다."));
 
-        reportProcess.update(request.adminId(), request.status(), request.reason());
+        reportProcess.update(adminId, request.status(), request.reason());
     }
 }

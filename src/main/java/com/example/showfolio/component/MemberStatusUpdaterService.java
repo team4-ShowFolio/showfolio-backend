@@ -1,11 +1,12 @@
 package com.example.showfolio.component;
 
 import com.example.showfolio.entity.Member;
+import com.example.showfolio.enums.MemberStatus;
 import com.example.showfolio.repository.MemberRepository;
 import com.example.showfolio.port.MemberStatusUpdater;
-import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
@@ -14,11 +15,12 @@ public class MemberStatusUpdaterService implements MemberStatusUpdater {
     private final MemberRepository memberRepository;
 
     @Override
-    public void updateStatus(Long userId, String status) {
-        // TODO 회원 기능 병합하면 구현 진행
+    @Transactional
+    public void updateStatus(Long userId, MemberStatus status) {
         Member member = memberRepository.findById(userId)
-                .orElseGet(Member::new);
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
-        member.setDeletedAt(LocalDateTime.now());
+        member.delete();
+        memberRepository.save(member);
     }
 }
