@@ -30,6 +30,7 @@ public class FeedService {
     private final MemberRepository memberRepository;
     private final NotificationService notificationService;
     private final FollowRepository followRepository;
+    private final ProjectRepository projectRepository;
 
 
     // 피드 작성
@@ -45,12 +46,26 @@ public class FeedService {
         Member member = memberRepository.findById(currentUserId)
                 .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다"));
 
+        //프로젝트 검증
+        Project project = null;
+        if (request.getProjectId() != null) {
+            // 삭제되지 않고 살아있는 프로젝트인지 조회
+            project = projectRepository.findById(request.getProjectId())
+                    .orElseThrow(com.example.showfolio.exception.ProjectNotFoundException::new); // 팀원 예외 재활용!
+
+            // 본인 소유의 프로젝트가 맞는지 체크
+            if (!project.isOwnedBy(currentUserId)) { //
+                throw new com.example.showfolio.exception.ProjectAccessDeniedException(); // 팀원 예외 재활용!
+            }
+        }
+
+
         Feed feed = Feed.builder()
                 .member(member)
                 .title(request.getTitle())
                 .content(request.getContent())
                 .visibility(request.getVisibility())
-                .projectId(request.getProjectId())
+                .project(project)
                 .build();
 
         feedRepository.save(feed);
@@ -123,11 +138,21 @@ public class FeedService {
             throw new IllegalArgumentException("수정 권한이 없습니다");
         }
 
+        Project targetProject = null;
+        if (request.getProjectId() != null) {
+            targetProject = projectRepository.findById(request.getProjectId())
+                    .orElseThrow(com.example.showfolio.exception.ProjectNotFoundException::new);
+
+            if (!targetProject.isOwnedBy(currentUserId)) { //
+                throw new com.example.showfolio.exception.ProjectAccessDeniedException();
+            }
+        }
+
         feed.update(
                 request.getTitle(),
                 request.getContent(),
                 request.getVisibility(),
-                request.getProjectId()
+                targetProject
         );
 
         // 태그 초기화 후 재저장
