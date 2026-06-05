@@ -1,10 +1,10 @@
-package com.example.showfolio.project.repository;
+package com.example.showfolio.repository;
 
-import com.example.showfolio.project.dto.ProjectSearchCondition;
-import com.example.showfolio.project.entity.Project;
-import com.example.showfolio.project.entity.QProject;
-import com.example.showfolio.project.entity.QProjectTech;
-import com.example.showfolio.project.entity.Visibility;
+import com.example.showfolio.dto.ProjectSearchCondition;
+import com.example.showfolio.entity.Project;
+import com.example.showfolio.entity.QProject;
+import com.example.showfolio.entity.QProjectTech;
+import com.example.showfolio.enums.Visibility;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;

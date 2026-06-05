@@ -1,5 +1,6 @@
-package com.example.showfolio.project.entity;
+package com.example.showfolio.entity;
 
+import com.example.showfolio.enums.Visibility;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -98,6 +99,16 @@ public class Project {
 
     public boolean isPrivate() {
         return this.visibility == Visibility.PRIVATE;
+    }
+
+    /** 팀 프로젝트 여부 (primitive) — getIsTeam()과 공존시키려 명시적으로 둠 */
+    public boolean isTeam() {
+        return this.isTeam;
+    }
+
+    /** AI 모듈 호환용 — Boolean 래퍼 접근자 */
+    public Boolean getIsTeam() {
+        return this.isTeam;
     }
 
     /** 프로젝트 정보 수정 (Dirty Checking) */

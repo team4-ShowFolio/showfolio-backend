@@ -1,17 +1,19 @@
-package com.example.showfolio.project.controller;
+package com.example.showfolio.controller;
 
-import com.example.showfolio.project.dto.ProjectCreateRequest;
-import com.example.showfolio.project.dto.ProjectLikeResponse;
-import com.example.showfolio.project.dto.ProjectResponse;
-import com.example.showfolio.project.entity.Visibility;
-import com.example.showfolio.project.exception.ProjectAccessDeniedException;
-import com.example.showfolio.project.service.ProjectService;
+import com.example.showfolio.dto.ProjectCreateRequest;
+import com.example.showfolio.dto.ProjectLikeResponse;
+import com.example.showfolio.dto.ProjectResponse;
+import com.example.showfolio.enums.Visibility;
+import com.example.showfolio.exception.ProjectAccessDeniedException;
+import com.example.showfolio.service.ProjectService;
+import com.example.showfolio.util.JwtUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -35,6 +37,10 @@ class ProjectControllerTest {
     @Autowired MockMvc mockMvc;
 
     @MockitoBean ProjectService projectService;   // Boot 4: @MockBean → @MockitoBean
+
+    // 머지된 develop의 보안 필터(JwtFilter) 의존성 — 웹 슬라이스에 없어 목으로 제공
+    @MockitoBean JwtUtil jwtUtil;
+    @MockitoBean UserDetailsService userDetailsService;
 
     private ProjectResponse sample() {
         return new ProjectResponse(

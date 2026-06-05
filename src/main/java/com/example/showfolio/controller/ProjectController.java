@@ -1,10 +1,10 @@
-package com.example.showfolio.project.controller;
+package com.example.showfolio.controller;
 
-import com.example.showfolio.project.dto.ProjectCreateRequest;
-import com.example.showfolio.project.dto.ProjectResponse;
-import com.example.showfolio.project.dto.ProjectUpdateRequest;
-import com.example.showfolio.project.service.ProjectService;
-import com.example.showfolio.project.dto.ProjectLikeResponse;
+import com.example.showfolio.dto.ProjectCreateRequest;
+import com.example.showfolio.dto.ProjectResponse;
+import com.example.showfolio.dto.ProjectUpdateRequest;
+import com.example.showfolio.service.ProjectService;
+import com.example.showfolio.dto.ProjectLikeResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

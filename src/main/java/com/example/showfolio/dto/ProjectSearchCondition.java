@@ -1,4 +1,4 @@
-package com.example.showfolio.project.dto;
+package com.example.showfolio.dto;
 
 import java.util.List;
 

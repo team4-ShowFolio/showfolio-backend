@@ -1,8 +1,8 @@
-package com.example.showfolio.project.dto;
+package com.example.showfolio.dto;
 
-import com.example.showfolio.project.entity.Project;
-import com.example.showfolio.project.entity.ProjectTech;
-import com.example.showfolio.project.entity.Visibility;
+import com.example.showfolio.entity.Project;
+import com.example.showfolio.entity.ProjectTech;
+import com.example.showfolio.enums.Visibility;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

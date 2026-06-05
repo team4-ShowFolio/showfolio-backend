@@ -28,12 +28,8 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
-<<<<<<< HEAD
-		<querydsl.version>5.1.0</querydsl.version>
-=======
 		<spring-ai.version>2.0.0-M8</spring-ai.version>
 		<querydsl.version>5.1.0</querydsl.version>	<!-- Querydsl 추가-->
->>>>>>> origin/develop
 	</properties>
 	<dependencies>
 		<dependency>
@@ -200,10 +196,7 @@
 									<groupId>org.projectlombok</groupId>
 									<artifactId>lombok</artifactId>
 								</path>
-<<<<<<< HEAD
-=======
 								<!-- Querydsl APT 추가 -->
->>>>>>> origin/develop
 								<path>
 									<groupId>com.querydsl</groupId>
 									<artifactId>querydsl-apt</artifactId>
@@ -213,15 +206,12 @@
 								<path>
 									<groupId>jakarta.persistence</groupId>
 									<artifactId>jakarta.persistence-api</artifactId>
-<<<<<<< HEAD
 									<version>3.2.0</version>
 								</path>
 								<path>
 									<groupId>jakarta.annotation</groupId>
 									<artifactId>jakarta.annotation-api</artifactId>
 									<version>3.0.0</version>
-=======
->>>>>>> origin/develop
 								</path>
 							</annotationProcessorPaths>
 						</configuration>

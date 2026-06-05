@@ -1,7 +1,7 @@
-package com.example.showfolio.project.repository;
+package com.example.showfolio.repository;
 
-import com.example.showfolio.project.dto.ProjectSearchCondition;
-import com.example.showfolio.project.entity.Project;
+import com.example.showfolio.dto.ProjectSearchCondition;
+import com.example.showfolio.entity.Project;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
