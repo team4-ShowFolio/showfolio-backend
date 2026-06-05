@@ -60,4 +60,8 @@ public class Member {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
+    }
 }
