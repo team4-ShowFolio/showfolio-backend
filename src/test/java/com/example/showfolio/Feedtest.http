@@ -1,65 +1,163 @@
-### ==========================================
-### ⚙️ [변수 설정] baseUrl만 맞춰두시면 됩니다.
-### ==========================================
+### =========================================================================
+### ⚙️ [변수 설정]
+### =========================================================================
 @baseUrl = http://localhost:8080/api
 
-### ==========================================
-### 🔐 [0] 사전 필수 단계: 계정 생성 및 세션 획득 (2개)
-### ==========================================
-
-### ① [Auth] 테스트 유저 생성 (AuthController)
+### =========================================================================
+### 🔐 [인증] 사전 필수 단계 (2개)
+### =========================================================================
+### 1. [Auth] 테스트용 계정 생성
 POST {{baseUrl}}/auth/signup
 Content-Type: application/json
 
 {
-  "email": "test@test.com",
+  "email": "test5@test.com",
   "password": "password123!",
-  "nickname": "테스트유저"
+  "nickname": "테스트유저5"
 }
 
-
-### ② [Auth] 테스트 로그인 -> 토큰 발급 (AuthController)
-### ✨ [수정] 로그인 성공 시 발급되는 accessToken을 컴퓨터 메모리에 자동으로 즉시 가로채 보관합니다!
+### 2. [Auth] 테스트 로그인 -> 토큰 자동 획득
 POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "email": "test@test.com",
+  "email": "test5@test.com",
   "password": "password123!"
 }
 
-> {%
-    client.global.set("accessToken", response.body.accessToken);
-%}
+> {% client.global.set("accessToken", response.body.accessToken); %}
 
-### ==========================================
-###  본인 API 테스트 예시
-### ==========================================
-### 본인이 만든 API를 테스트할 때 아래처럼 Authorization 헤더를 반드시 넣어주세요!
-### 피드 작성 테스트 예시
+
+### =========================================================================
+### 📝 [피드 - Feeds] 도메인 (총 10개 API)
+### =========================================================================
+
+### 3. 피드 등록 (createFeed)
 POST {{baseUrl}}/feeds
 Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
   "title": "Querydsl 최적화를 적용한 신규 피드",
-  "content": "JPA N+1 장애 문제를 전면 리팩토링하여 fetchJoin으로 수리 완료했습니다.",
+  "content": "JPA N+1 장애 문제를 전면 리팩토링 완료했습니다.",
   "visibility": "PUBLIC",
-  "projectId": 1,
-  "tags": ["Spring", "JPA", "Querydsl"],
-  "imageUrls": ["/uploads/image1.png", "/uploads/image2.png"],
+  "projectId":null,
+  "tags": ["Spring", "JPA"],
+  "imageUrls": ["/uploads/image1.png"],
   "mentionedUserIds": [2, 3]
 }
 
 > {% client.global.set("createdFeedId", response.body.id); %}
 
 
-### ==========================================
-### 📸 [1] 이미지(Image) 도메인 테스트 (1개)
-### ==========================================
+### 4. 전체 피드 목록 조회 - 최신순 (getFeeds)
+GET {{baseUrl}}/feeds?page=0
+Authorization: Bearer {{accessToken}}
 
-### ③ [Image] 피드용 이미지 업로드 (ImageController)
-### ⚠️ 주의: 로컬에 실제 테스트용 파일(test.png)이 인스턴스 경로에 있어야 가동됩니다.
+
+### 5. 피드 검색 - 조건 정렬 포함 (searchFeeds)
+GET {{baseUrl}}/feeds/search?keyword=JPA&tags=Spring&author=홍길동&sort=likes&page=0&size=20
+Authorization: Bearer {{accessToken}}
+
+
+### 6. 좋아요한 피드 목록 조회 (getLikedFeeds)
+GET {{baseUrl}}/feeds/liked?page=0&size=20
+Authorization: Bearer {{accessToken}}
+
+
+### 7. 팔로잉 피드 목록 조회 (getFollowingFeeds) ✨ [추가됨!]
+GET {{baseUrl}}/feeds/following?page=0
+Authorization: Bearer {{accessToken}}
+
+
+### 8. 내 피드 목록 조회 (getMyFeeds)
+GET {{baseUrl}}/feeds/me?page=0
+Authorization: Bearer {{accessToken}}
+
+
+### 9. 피드 단건 조회 (getFeed)
+GET {{baseUrl}}/feeds/{{createdFeedId}}
+Authorization: Bearer {{accessToken}}
+
+
+### 10. 피드 수정 (updateFeed)
+PUT {{baseUrl}}/feeds/{{createdFeedId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "title": "수정된 피드 제목",
+  "content": "수정된 본문 내용입니다.",
+  "visibility": "PRIVATE",
+  "projectId": null,
+  "tags": ["Refactoring"],
+  "imageUrls": ["/uploads/image3.png"],
+  "mentionedUserIds": [3]
+}
+
+
+### 11. 좋아요 토글 - 등록/취소 (toggleLike)
+POST {{baseUrl}}/feeds/{{createdFeedId}}/likes
+Authorization: Bearer {{accessToken}}
+
+
+### 12. 피드 삭제 (deleteFeed)
+DELETE {{baseUrl}}/feeds/{{createdFeedId}}
+Authorization: Bearer {{accessToken}}
+
+
+### =========================================================================
+### 💬 [댓글 - Comments] 도메인 (총 6개 API)
+### =========================================================================
+
+### 13. 댓글/대댓글 작성 (createComment)
+POST {{baseUrl}}/feeds/{{createdFeedId}}/comments
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "content": "이 부분 아키텍처 되게 신선하네요!",
+  "parentId": null
+}
+
+> {% client.global.set("createdCommentId", response.body.id); %}
+
+
+### 14. 댓글 목록 계층형 조회 (getComments)
+GET {{baseUrl}}/feeds/{{createdFeedId}}/comments
+Authorization: Bearer {{accessToken}}
+
+
+### 15. 내가 쓴 댓글 목록 조회 (getMyComments)
+GET {{baseUrl}}/comments/my?page=0&size=20
+Authorization: Bearer {{accessToken}}
+
+
+### 16. 댓글 수정 (updateComment)
+PUT {{baseUrl}}/feeds/{{createdFeedId}}/comments/{{createdCommentId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "content": "[수정됨] 대댓글 및 부모 댓글 동기화 완료!"
+}
+
+
+### 17. 댓글 삭제 - 피드 기반 (deleteComment)
+DELETE {{baseUrl}}/feeds/{{createdFeedId}}/comments/{{createdCommentId}}
+Authorization: Bearer {{accessToken}}
+
+
+### 18. 댓글 삭제 - 피드ID 없이 독립 삭제 (deleteComment - feedId 없이) ✨ [추가됨!]
+DELETE {{baseUrl}}/comments/{{createdCommentId}}
+Authorization: Bearer {{accessToken}}
+
+
+### =========================================================================
+### 📸 [이미지 - Images] 인프라 도메인 (총 2개 API)
+### =========================================================================
+
+### 19. 이미지 업로드 (uploadImage)
 POST {{baseUrl}}/images/upload
 Authorization: Bearer {{accessToken}}
 Content-Type: multipart/form-data; boundary=WebAppBoundary
@@ -72,135 +170,32 @@ Content-Type: image/png
 --WebAppBoundary--
 
 
-### ==========================================
-### 📝 [2] 피드(Feed) 도메인 생성 및 조회 테스트 (5개)
-### ==========================================
-
-### ④ [Feed] 피드 작성 (FeedController)
-POST {{baseUrl}}/feeds
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "title": "Querydsl 최적화를 적용한 신규 피드",
-  "content": "JPA N+1 장애 문제를 전면 리팩토링하여 fetchJoin으로 수리 완료했습니다.",
-  "visibility": "PUBLIC",
-  "projectId": null,
-  "tags": ["Spring", "JPA", "Querydsl"],
-  "imageUrls": ["/uploads/image1.png", "/uploads/image2.png"],
-  "mentionedUserIds": [2, 3]
-}
-
-> {% client.global.set("createdFeedId", response.body.id); %}
-
-
-### ⑤ [Feed] 전체 피드 목록 페이징 조회 (FeedController)
-GET {{baseUrl}}/feeds?page=0&size=10
+### 20. 이미지 삭제 (deleteImage)
+DELETE {{baseUrl}}/images/test.png
 Authorization: Bearer {{accessToken}}
 
 
-### ⑥ [Feed] 특정 피드 단건 상세 조회 (FeedController)
-GET {{baseUrl}}/feeds/{{createdFeedId}}
-Authorization: Bearer {{accessToken}}
+### =========================================================================
+### 🔔 [알림 - Notifications] 도메인 (총 4개 API)
+### =========================================================================
 
-
-### ⑦ [Feed] 피드 검색 (좋아요순 정렬 - FeedController)
-GET {{baseUrl}}/feeds/search?keyword=Querydsl&sort=likes&page=0&size=20
-Authorization: Bearer {{accessToken}}
-
-
-### ⑧ [Feed] 메인 피드 목록 조회 (비즈니스 요구 필터링 - FeedController)
-GET {{baseUrl}}/feeds/main?page=0&size=10
-Authorization: Bearer {{accessToken}}
-
-
-### ==========================================
-### 💬 [3] 댓글(Comment) 도메인 통합 테스트 (5개)
-### ==========================================
-
-### ⑨ [Comment] 최상위 부모 댓글 작성 (CommentController)
-POST {{baseUrl}}/feeds/{{createdFeedId}}/comments
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "content": "성능 최적화 뼈대가 기가 막히네요. 벤치마킹 해갑니다!"
-}
-
-> {% client.global.set("createdCommentId", response.body.id); %}
-
-
-### ⑩ [Comment] 자식 대댓글(답글) 작성 (CommentController)
-POST {{baseUrl}}/feeds/{{createdFeedId}}/comments
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "content": "감사합니다! 대댓글 계층 쿼리도 무한 루프 없이 깔끔하게 조율했습니다.",
-  "parentId": {{createdCommentId}}
-}
-
-
-### ⑪ [Comment] 특정 피드의 댓글 전체 계층 구조 조회 (CommentController)
-GET {{baseUrl}}/feeds/{{createdFeedId}}/comments
-Authorization: Bearer {{accessToken}}
-
-
-### ⑫ [MyComment] 내가 작성한 댓글 목록 조회 (MyCommentController)
-GET {{baseUrl}}/comments/my?page=0&size=20
-Authorization: Bearer {{accessToken}}
-
-
-### ⑬ [Comment] 댓글 내용 수정 (CommentController)
-PUT {{baseUrl}}/feeds/{{createdFeedId}}/comments/{{createdCommentId}}
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "content": "[수정됨] 대댓글 및 부모 댓글 동기화 구조 최종 확인 완료!"
-}
-
-
-### ==========================================
-### 🔔 [4] 알림(Notification) 도메인 테스트 (4개)
-### ==========================================
-
-### ⑭ [Notification] 내 알림 센터 전체 목록 페이징 조회 (NotificationController)
+### 21. 알림 목록 조회 (getNotifications)
 GET {{baseUrl}}/notifications?page=0&size=20
 Authorization: Bearer {{accessToken}}
 
 > {% client.global.set("targetNotificationId", response.body.content[0].id); %}
 
 
-### ⑮ [Notification] 읽지 않은 신규 알림 개수 실시간 카운트 (NotificationController)
+### 22. 읽지 않은 알림 수 조회 (getUnreadCount)
 GET {{baseUrl}}/notifications/unread-count
 Authorization: Bearer {{accessToken}}
 
 
-### ⑯ [Notification] 특정 알림 단건 읽음(확인) 처리 (NotificationController)
+### 23. 단건 알림 읽음 처리 (readNotification)
 PATCH {{baseUrl}}/notifications/{{targetNotificationId}}
 Authorization: Bearer {{accessToken}}
 
 
-### ⑰ [Notification] 내 알림 센터 전체 일괄 읽음 처리 (NotificationController)
+### 24. 전체 알림 읽음 처리 (readAllNotifications)
 PATCH {{baseUrl}}/notifications/read-all
-Authorization: Bearer {{accessToken}}
-
-
-### ==========================================
-### 💣 [5] 데이터 청소 및 최적화 연산 폭파 단계 (3개)
-### ==========================================
-
-### ⑱ [Feed] 피드 좋아요 토글 증감 연산 테스트 (FeedController)
-POST {{baseUrl}}/feeds/{{createdFeedId}}/likes
-Authorization: Bearer {{accessToken}}
-
-
-### ⑲ [MyComment] 팀원 요구용 독립 주소 기반 댓글 삭제 (MyCommentController)
-DELETE {{baseUrl}}/comments/{{createdCommentId}}
-Authorization: Bearer {{accessToken}}
-
-
-### ⑳ [Feed] 피드 완전 삭제 - 연 연쇄 벌크 연산 가동 (FeedController)
-DELETE {{baseUrl}}/feeds/{{createdFeedId}}
 Authorization: Bearer {{accessToken}}
