@@ -27,7 +27,7 @@ public class ReportReadService implements ReportReader, ReportCounter {
     @Override
     @Transactional(readOnly = true)
     public Page<ReportResponse> getAll(ReportSearchCondition condition, Pageable pageable) {
-        Specification<Report> spec = (root, query, cb) -> null;
+        Specification<Report> spec = (root, query, cb) -> cb.conjunction();
 
         if (condition.targetId() != null) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("targetId"), condition.targetId()));
@@ -48,7 +48,7 @@ public class ReportReadService implements ReportReader, ReportCounter {
     @Override
     @Transactional(readOnly = true)
     public Page<ReportProcessResponse> getAllProcesses(ReportProcessSearchCondition condition, Pageable pageable) {
-        Specification<ReportProcess> spec = (root, query, cb) -> null;
+        Specification<ReportProcess> spec = (root, query, cb) -> cb.conjunction();
 
         if (condition.reportId() != null) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("report").get("id"), condition.reportId()));
