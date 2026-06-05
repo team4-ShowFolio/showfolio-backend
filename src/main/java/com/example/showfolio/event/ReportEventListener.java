@@ -16,6 +16,6 @@ public class ReportEventListener {
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handleReportCreated(ReportCreatedEvent event) {
-        reportProcessor.process(event.report().getId(), new ReportProcessRequest(null, ProcessStatus.PENDING, null));
+        reportProcessor.process(event.report().getId(), null, new ReportProcessRequest(ProcessStatus.PENDING, null));
     }
 }
