@@ -15,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-// TODO 회원 관련 기능 병합 되면 구현 진행
 @Service
 @RequiredArgsConstructor
 public class AdminMemberService {

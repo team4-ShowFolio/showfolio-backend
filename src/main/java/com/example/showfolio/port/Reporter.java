@@ -8,6 +8,6 @@ import com.example.showfolio.dto.ReportCreateRequest;
  */
 public interface Reporter {
 
-    void report(ReportCreateRequest request);
+    void report(Long reporterId, ReportCreateRequest request);
 
 }
