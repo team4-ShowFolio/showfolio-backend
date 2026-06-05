@@ -35,5 +35,9 @@ build/
 ## 필요한 경우
 .env
 
+# 로컬 환경 설정
+**/application-local.yml
+**/application-local.yaml
+
 # 이미지 업로드 폴더
 uploads/

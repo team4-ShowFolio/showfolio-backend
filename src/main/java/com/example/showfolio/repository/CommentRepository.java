@@ -10,6 +10,11 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long>, CommentRepositoryCustom {
+
+    long countByMemberIdAndDeletedAtIsNull(Long memberId);
+
+    List<Comment> findTop5ByMemberIdAndDeletedAtIsNullOrderByCreatedAtDesc(Long memberId);
+
     // 내가 쓴 댓글 목록
     @Query("SELECT c FROM Comment c " +
             "WHERE c.member.id = :userId " +

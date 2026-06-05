@@ -2,9 +2,10 @@ package com.example.showfolio.repository;
 
 import com.example.showfolio.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.Optional;
 
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberRepository extends JpaRepository<Member, Long>, JpaSpecificationExecutor<Member> {
 
     // 이메일로 찾기 (로그인)
     Optional<Member> findByEmail(String email);
