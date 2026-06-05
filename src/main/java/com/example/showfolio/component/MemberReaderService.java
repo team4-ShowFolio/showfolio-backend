@@ -5,13 +5,16 @@ import com.example.showfolio.dto.AdminMemberResponse;
 import com.example.showfolio.dto.MemberSearchCondition;
 import com.example.showfolio.dto.RecentCommentResponse;
 import com.example.showfolio.dto.RecentFeedResponse;
+import com.example.showfolio.dto.ReportResponse;
 import com.example.showfolio.entity.Member;
 import com.example.showfolio.repository.CommentRepository;
 import com.example.showfolio.repository.FeedRepository;
 import com.example.showfolio.repository.MemberRepository;
+import com.example.showfolio.repository.ReportRepository;
 import com.example.showfolio.port.MemberReader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
@@ -26,6 +29,7 @@ public class MemberReaderService implements MemberReader {
     private final MemberRepository memberRepository;
     private final FeedRepository feedRepository;
     private final CommentRepository commentRepository;
+    private final ReportRepository reportRepository;
 
     @Override
     public AdminMemberDetailResponse getById(Long userId) {
@@ -53,11 +57,19 @@ public class MemberReaderService implements MemberReader {
                 ))
                 .toList();
 
+        List<ReportResponse> reports = reportRepository
+                .findByTargetUserId(userId, PageRequest.of(0, 10))
+                .stream()
+                .map(ReportResponse::from)
+                .toList();
+
+        String status = member.getDeletedAt() != null ? "DELETED" : "ACTIVE";
+
         return new AdminMemberDetailResponse(
                 member.getId(), member.getNickname(), member.getEmail(), member.getEmail(),
-                member.getRole(), null, member.getCreatedAt(),
+                member.getRole(), status, member.getCreatedAt(),
                 List.of(), feedCount, commentCount,
-                List.of(), recentFeeds, recentComments
+                reports, recentFeeds, recentComments
         );
     }
 
@@ -75,7 +87,11 @@ public class MemberReaderService implements MemberReader {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("role"), condition.role()));
         }
         if (condition.status() != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), condition.status()));
+            if ("DELETED".equalsIgnoreCase(condition.status())) {
+                spec = spec.and((root, query, cb) -> cb.isNotNull(root.get("deletedAt")));
+            } else if ("ACTIVE".equalsIgnoreCase(condition.status())) {
+                spec = spec.and((root, query, cb) -> cb.isNull(root.get("deletedAt")));
+            }
         }
 
         return memberRepository.findAll(spec, pageable)
@@ -85,11 +101,11 @@ public class MemberReaderService implements MemberReader {
                         m.getEmail(),
                         m.getEmail(),
                         m.getRole(),
-                        null,
+                        m.getDeletedAt() != null ? "DELETED" : "ACTIVE",
                         m.getCreatedAt(),
                         List.of(),
-                        0,
-                        0
+                        feedRepository.countByMemberId(m.getId()),
+                        (int) commentRepository.countByMemberIdAndDeletedAtIsNull(m.getId())
                 ));
     }
 }
