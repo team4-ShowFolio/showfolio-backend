@@ -36,7 +36,7 @@ public class Member {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role = Role.USER;  // ← 추가!
+    private Role role = Role.USER; // ← 추가!
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -59,6 +59,10 @@ public class Member {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
     }
 
     public boolean isPremium() {

@@ -13,7 +13,7 @@ spring:
           model: gemini-2.5-flash
           # 답변의 창의성 조절 (0.0에 가까울수록 엄격한 답변, 1.0에 가까울수록 창의적인 답변)
           temperature: 0.5
-          max-output-tokens: 50000   # 출력 토큰개수 제한 안전장치 (5만자 이상 동작 방지)
+          max-output-tokens: 50000 # 출력 토큰개수 제한 안전장치 (5만자 이상 동작 방지)
 
   # 2. Database - MySQL 연동 설정
   datasource:
@@ -21,6 +21,19 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # 임시 Oauth 값 추가
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - user:email
+              - read:user
 
   # 3. JPA / Hibernate 설정
   jpa:
@@ -32,21 +45,13 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
 
-  # 파일 업로드 설정 추가
-#   servlet:
-#     multipart:
-#       enabled: true
-#       max-file-size: 10MB      # 파일 하나당 최대 크기
-#       max-request-size: 50MB   # 요청 전체 최대 크기
+jwt:
+  secret: ${JWT_SECRET}
+  access-expiration: 3600000
+  refresh-expiration: 1209600000
 
-  jwt:
-    secret: ${JWT_SECRET}        # JWT 시크릿 키
-    access-expiration: 3600000
-    refresh-expiration: 1209600000
+server:
+  port: 8080
 
-  server:
-    port: 8080
-
-
-  file:
-    upload-dir: uploads/    # 로컬 저장 경로
+file:
+  upload-dir: uploads/
