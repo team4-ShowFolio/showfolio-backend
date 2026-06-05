@@ -1,5 +1,6 @@
 package com.example.showfolio.dto.response;
 
+import com.example.showfolio.dto.ProjectResponse;
 import com.example.showfolio.entity.Feed;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,7 +19,7 @@ public class FeedResponse {
     private String title;
     private String content;
     private String visibility;
-    private Long projectId;
+    private ProjectResponse project;
     private int likeCount;
     private int commentCount;
     private boolean isLiked;
@@ -37,7 +38,7 @@ public class FeedResponse {
                 .title(feed.getTitle())
                 .content(feed.getContent())
                 .visibility(feed.getVisibility().name())
-                .projectId(feed.getProjectId())
+                .project(feed.getProject() != null ? ProjectResponse.from(feed.getProject()) : null)
                 .likeCount(feed.getLikeCount())
                 .commentCount(feed.getComments().size())
                 .isLiked(isLiked)
