@@ -36,7 +36,7 @@ public class Member {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role = Role.USER;  // ← 추가!
+    private Role role = Role.USER; // ← 추가!
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -63,5 +63,11 @@ public class Member {
 
     public void delete() {
         this.deletedAt = LocalDateTime.now();
+    }
+
+    public boolean isPremium() {
+        return subscriptionType == SubscriptionType.PREMIUM
+                && subscriptionExpiredAt != null
+                && subscriptionExpiredAt.isAfter(LocalDateTime.now());
     }
 }
