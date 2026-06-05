@@ -1,5 +1,6 @@
 package com.example.showfolio.dto.request;
 
+import com.example.showfolio.enums.Visibility;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -17,7 +18,7 @@ public class FeedUpdateRequest {
     private String content;
 
     @NotNull(message = "공개 범위를 선택해주세요")
-    private String visibility;
+    private Visibility visibility;
 
     // 프로젝트 연결
     private Long projectId;

@@ -38,7 +38,7 @@ public class FeedResponse {
                 .content(feed.getContent())
                 .visibility(feed.getVisibility().name())
                 .projectId(feed.getProjectId())
-                .likeCount(feed.getLikes().size())
+                .likeCount(feed.getLikeCount())
                 .commentCount(feed.getComments().size())
                 .isLiked(isLiked)
                 .tags(feed.getTags().stream()

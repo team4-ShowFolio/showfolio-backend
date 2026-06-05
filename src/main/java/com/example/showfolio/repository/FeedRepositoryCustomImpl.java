@@ -30,6 +30,7 @@ public class FeedRepositoryCustomImpl implements FeedRepositoryCustom {
 
         List<Feed> content = queryFactory
                 .selectFrom(feed)
+                .leftJoin(feed.member).fetchJoin() // N+1 문제 해결
                 .where(builder)
                 .orderBy(feed.createdAt.desc())
                 .offset(pageable.getOffset())
@@ -58,6 +59,7 @@ public class FeedRepositoryCustomImpl implements FeedRepositoryCustom {
 
         List<Feed> content = queryFactory
                 .selectFrom(feed)
+                .leftJoin(feed.member).fetchJoin() //N+1 문제 해결
                 .where(builder)
                 .orderBy(feed.createdAt.desc())
                 .offset(pageable.getOffset())
@@ -82,6 +84,7 @@ public class FeedRepositoryCustomImpl implements FeedRepositoryCustom {
 
         List<Feed> content = queryFactory
                 .selectFrom(feed)
+                .leftJoin(feed.member).fetchJoin() //N+1 문제 해결
                 .where(builder)
                 .orderBy(feed.createdAt.desc())
                 .offset(pageable.getOffset())
@@ -135,11 +138,13 @@ public class FeedRepositoryCustomImpl implements FeedRepositoryCustom {
 
         // 정렬 조건 (latest - 최신순 ,likes - 좋아요순)
         OrderSpecifier<?> orderSpecifier = "likes".equals(sort)
-                ? feed.likes.size().desc()
+                //? feed.likes.size().desc()
+                ? feed.likeCount.desc()
                 : feed.createdAt.desc();
 
         List<Feed> content = queryFactory
                 .selectFrom(feed)
+                .leftJoin(feed.member).fetchJoin() //N+1 문제 해결
                 .where(builder)
                 .orderBy(orderSpecifier)
                 .offset(pageable.getOffset())
