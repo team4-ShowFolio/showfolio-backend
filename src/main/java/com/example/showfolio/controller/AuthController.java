@@ -4,6 +4,7 @@ import com.example.showfolio.dto.request.LoginRequest;
 import com.example.showfolio.dto.request.SignupRequest;
 import com.example.showfolio.dto.request.TechStackRequest;
 import com.example.showfolio.dto.request.UpdateProfileRequest;
+import com.example.showfolio.enums.SubscriptionType;
 import com.example.showfolio.service.AuthService;
 import com.example.showfolio.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -106,11 +107,26 @@ public class AuthController {
                 "이미 사용중인 닉네임입니다." : "사용 가능한 닉네임입니다.");
     }
 
-    //다른 유저 프로프리 조회
+    //다른 유저 프로필 조회
     @GetMapping("/profile/{memberId}")
     public ResponseEntity<?> getMemberProfile(
             @PathVariable Long memberId ) {
         return ResponseEntity.ok(authService.getMemberProfile(memberId));
     }
 
+    // PRO (AI 기능) 구독하기
+    @PutMapping("/subscribe")
+    public ResponseEntity<?> subscribeMember(
+            @RequestHeader("Authorization") String token) {
+        Long memberId = jwtUtil.getUserId(token.substring(7));
+        return ResponseEntity.ok(authService.changeSubscription(memberId, SubscriptionType.PREMIUM));
+    }
+
+    // PRO 구독 해지
+    @PutMapping("/unsubscribe")
+    public ResponseEntity<?> unsubscribeMember(
+            @RequestHeader("Authorization") String token) {
+        Long memberId = jwtUtil.getUserId(token.substring(7));
+        return ResponseEntity.ok(authService.changeSubscription(memberId, SubscriptionType.FREE));
+    }
 }
