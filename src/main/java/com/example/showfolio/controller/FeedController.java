@@ -71,10 +71,15 @@ public class FeedController {
     @GetMapping("/following")
     public ResponseEntity<Page<FeedResponse>> getFollowingFeeds(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam List<Long> followingIds,
+            @RequestParam(required = false) List<Long> followingIds,
 
             @AuthenticationPrincipal UserDetails userDetails) {
         Long currentUserId = Long.parseLong(userDetails.getUsername());
+
+        // 팔로잉한 사람이 없으면 빈 목록 반환
+        if (followingIds == null || followingIds.isEmpty()) {
+            return ResponseEntity.ok(Page.empty());
+        }
 
         return ResponseEntity.ok(
                 feedService.getFollowingFeeds(followingIds, page, currentUserId));
