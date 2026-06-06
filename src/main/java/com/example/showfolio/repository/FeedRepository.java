@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface FeedRepository extends JpaRepository<Feed, Long>, FeedRepositoryCustom {
 
@@ -17,5 +18,13 @@ public interface FeedRepository extends JpaRepository<Feed, Long>, FeedRepositor
 
     // 포트폴리오 피드백용, N개 조회
     List<Feed> findByMember(Member member, Pageable pageable);
+
+    @Query("SELECT f FROM Feed f " +
+            "LEFT JOIN FETCH f.member " +
+            "WHERE f.id = :feedId")
+    Optional<Feed> findByIdWithMember(@Param("feedId") Long feedId);
+
+    @Query("SELECT COUNT(c) FROM Comment c WHERE c.feed.id = :feedId")
+    int countCommentsByFeedId(@Param("feedId") Long feedId);
 
 }

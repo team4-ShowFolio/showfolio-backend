@@ -29,7 +29,8 @@ public class FeedResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static FeedResponse from(Feed feed, boolean isLiked) {
+    public static FeedResponse from(Feed feed, boolean isLiked, int commentCount,
+                                    List<String> tags, List<String> imageUrls, List<Long> mentionedUserIds) {
         return FeedResponse.builder()
                 .id(feed.getId())
                 .userId(feed.getMember().getId())
@@ -40,20 +41,26 @@ public class FeedResponse {
                 .visibility(feed.getVisibility().name())
                 .project(feed.getProject() != null ? ProjectResponse.from(feed.getProject()) : null)
                 .likeCount(feed.getLikeCount())
-                .commentCount(feed.getComments().size())
+                .commentCount(commentCount)
                 .isLiked(isLiked)
-                .tags(feed.getTags().stream()
-                        .map(tag -> tag.getTagName())
-                        .toList())
-                .imageUrls(feed.getImages().stream()
-                        .sorted((a, b) -> a.getOrderNum() - b.getOrderNum())
-                        .map(image -> image.getImageUrl())
-                        .toList())
-                .mentionedUserIds(feed.getMentions().stream()
-                        .map(mention -> mention.getMentionedUser().getId())
-                        .toList())
+                .tags(tags)
+                .imageUrls(imageUrls)
+                .mentionedUserIds(mentionedUserIds)
                 .createdAt(feed.getCreatedAt())
                 .updatedAt(feed.getUpdatedAt())
                 .build();
+    }
+
+    // 기존 호환성 유지 (다른 곳에서 from(feed, isLiked) 쓰는 곳)
+    public static FeedResponse from(Feed feed, boolean isLiked, int commentCount, List<Long> mentionedUserIds) {
+        return from(feed, isLiked, commentCount, List.of(), List.of(), mentionedUserIds);
+    }
+
+    public static FeedResponse from(Feed feed, boolean isLiked, int commentCount) {
+        return from(feed, isLiked, commentCount, List.of(), List.of(), List.of());
+    }
+
+    public static FeedResponse from(Feed feed, boolean isLiked) {
+        return from(feed, isLiked, 0, List.of(), List.of(), List.of());
     }
 }

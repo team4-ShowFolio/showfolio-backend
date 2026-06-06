@@ -114,7 +114,7 @@ public class FeedService {
     // 피드 단건 조회
     public FeedResponse getFeed(Long feedId, Long currentUserId) {
 
-        Feed feed = feedRepository.findById(feedId)
+        Feed feed = feedRepository.findByIdWithMember(feedId)
                 .orElseThrow(() -> new EntityNotFoundException("피드를 찾을 수 없습니다"));
 
         validateVisibility(feed, currentUserId);
@@ -122,7 +122,24 @@ public class FeedService {
         boolean isLiked = feedLikeRepository
                 .existsByFeedIdAndMemberId(feedId, currentUserId);
 
-        return FeedResponse.from(feed, isLiked);
+        int commentCount = feedRepository.countCommentsByFeedId(feedId);
+
+        List<String> tags = feedTagRepository.findByFeedId(feedId)
+                .stream()
+                .map(t -> t.getTagName())
+                .toList();
+
+        List<String> imageUrls = feedImageRepository.findByFeedIdOrderByOrderNumAsc(feedId)
+                .stream()
+                .map(i -> i.getImageUrl())
+                .toList();
+
+        List<Long> mentionedUserIds = feedMentionRepository.findByFeedId(feedId)
+                .stream()
+                .map(m -> m.getMentionedUser().getId())
+                .toList();
+
+        return FeedResponse.from(feed, isLiked, commentCount, tags, imageUrls, mentionedUserIds);
     }
 
     // 피드 수정
@@ -131,7 +148,7 @@ public class FeedService {
                                    FeedUpdateRequest request,
                                    Long currentUserId) {
 
-        Feed feed = feedRepository.findById(feedId)
+        Feed feed = feedRepository.findByIdWithMember(feedId)
                 .orElseThrow(() -> new EntityNotFoundException("피드를 찾을 수 없습니다"));
 
         if (!feed.getMember().getId().equals(currentUserId)) {
@@ -195,7 +212,24 @@ public class FeedService {
         boolean isLiked = feedLikeRepository
                 .existsByFeedIdAndMemberId(feedId, currentUserId);
 
-        return FeedResponse.from(feed, isLiked);
+        int commentCount = feedRepository.countCommentsByFeedId(feedId);
+
+        List<String> tags = feedTagRepository.findByFeedId(feedId)
+                .stream()
+                .map(t -> t.getTagName())
+                .toList();
+
+        List<String> savedImageUrls = feedImageRepository.findByFeedIdOrderByOrderNumAsc(feedId)
+                .stream()
+                .map(i -> i.getImageUrl())
+                .toList();
+
+        List<Long> mentionedUserIds = feedMentionRepository.findByFeedId(feedId)
+                .stream()
+                .map(m -> m.getMentionedUser().getId())
+                .toList();
+
+        return FeedResponse.from(feed, isLiked, commentCount, tags, savedImageUrls, mentionedUserIds);
     }
 
     // 피드 삭제
