@@ -21,7 +21,6 @@ public class ImageController {
     public ResponseEntity<ImageResponse> uploadImage(
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal UserDetails userDetails) {
-        Long currentUserId = Long.parseLong(userDetails.getUsername());
 
         return ResponseEntity.ok(imageService.uploadImage(file));
     }

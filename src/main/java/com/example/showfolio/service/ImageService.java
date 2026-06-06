@@ -40,7 +40,16 @@ public class ImageService {
 
         String savedFilename = UUID.randomUUID().toString() + extension;
 
-        String savePath = uploadDir + savedFilename;
+        if (uploadDir == null || uploadDir.isBlank()) {
+            throw new IllegalStateException("이미지 업로드 경로(UPLOAD_DIR)가 설정되어 있지 않습니다");
+        }
+        String cleanUploadDir = uploadDir.trim();
+
+        if (!cleanUploadDir.endsWith("/") && !cleanUploadDir.endsWith("\\")) {
+            cleanUploadDir += File.separator; // 디렉터리 구분 문자 자동 추가
+        }
+
+        String savePath = cleanUploadDir + savedFilename;
 
         try {
             // 폴더 없으면 생성

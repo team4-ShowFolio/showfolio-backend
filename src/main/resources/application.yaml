@@ -54,4 +54,4 @@ server:
   port: 8080
 
 file:
-  upload-dir: uploads/
+  upload-dir: ${UPLOAD_DIR}

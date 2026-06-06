@@ -22,7 +22,7 @@ public class WebConfig implements WebMvcConfigurer {
     // 프론트(3000 port) 차단 해제 (CORS 방어막 해제)
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
+        registry.addMapping("/**")
                 .allowedOrigins("http://localhost:3000")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                 .allowedHeaders("*")
