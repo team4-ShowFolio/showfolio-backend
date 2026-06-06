@@ -250,7 +250,13 @@ public class AuthService {
         // 전달받은 타입("PREMIUM" 또는 "FREE")에 맞게 엔티티 상태 변경
         member.setSubscriptionType(type);
 
-        member.setSubscriptionExpiredAt(LocalDateTime.now().plusMonths(1));
+        if (type == SubscriptionType.PREMIUM) {
+            // 구독할 때는 한 달 뒤로 만료일 세팅
+            member.setSubscriptionExpiredAt(LocalDateTime.now().plusMonths(1));
+        } else {
+            // 해지할 때는 만료일을 즉시 null로 초기화
+            member.setSubscriptionExpiredAt(null);
+        }
 
         memberRepository.save(member);
         return new MemberResponse(member); // 갱신된 회원 객체 반환
