@@ -43,10 +43,10 @@ public class SecurityConfig {
                                 "/login/oauth2/**",   // ← 추가!
                                 "/oauth2/**",         // ← 추가!
                                 "/h2-console/**",
-                                "/error",
-                                "/api/images/**",
-                                "/uploads/**"
+                                "/error"
                         ).permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/images/upload").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/uploads/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

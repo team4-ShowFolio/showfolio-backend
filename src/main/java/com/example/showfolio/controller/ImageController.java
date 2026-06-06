@@ -22,11 +22,6 @@ public class ImageController {
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        // 로그인하지 않은 손님 유저(회원가입 스텝) 예외 처리
-        if (userDetails != null) {
-            long currentUserId = Long.parseLong(userDetails.getUsername());
-        }
-
         return ResponseEntity.ok(imageService.uploadImage(file));
     }
 
