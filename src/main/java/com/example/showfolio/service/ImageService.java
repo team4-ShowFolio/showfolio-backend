@@ -40,7 +40,13 @@ public class ImageService {
 
         String savedFilename = UUID.randomUUID().toString() + extension;
 
-        String savePath = uploadDir + savedFilename;
+        String cleanUploadDir = uploadDir;
+
+        if (!cleanUploadDir.endsWith("/") && !cleanUploadDir.endsWith("\\")) {
+            cleanUploadDir += File.separator; // 디렉터리 구분 문자 자동 추가
+        }
+
+        String savePath = cleanUploadDir + savedFilename;
 
         try {
             // 폴더 없으면 생성

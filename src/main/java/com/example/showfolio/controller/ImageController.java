@@ -21,7 +21,11 @@ public class ImageController {
     public ResponseEntity<ImageResponse> uploadImage(
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal UserDetails userDetails) {
-        Long currentUserId = Long.parseLong(userDetails.getUsername());
+
+        // 로그인하지 않은 손님 유저(회원가입 스텝) 예외 처리
+        if (userDetails != null) {
+            long currentUserId = Long.parseLong(userDetails.getUsername());
+        }
 
         return ResponseEntity.ok(imageService.uploadImage(file));
     }

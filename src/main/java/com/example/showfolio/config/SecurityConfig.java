@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(org.springframework.web.cors.CorsUtils::isPreFlightRequest).permitAll()
                         .requestMatchers(
                                 "/api/auth/signup",
                                 "/api/auth/login",
@@ -42,7 +43,9 @@ public class SecurityConfig {
                                 "/login/oauth2/**",   // ← 추가!
                                 "/oauth2/**",         // ← 추가!
                                 "/h2-console/**",
-                                "/error"
+                                "/error",
+                                "/api/images/**",
+                                "/uploads/**"
                         ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
