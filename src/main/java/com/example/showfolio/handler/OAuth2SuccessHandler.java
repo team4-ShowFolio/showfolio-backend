@@ -59,21 +59,22 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         refreshTokenEntity.setExpiredAt(LocalDateTime.now().plusWeeks(2));
         refreshTokenRepository.save(refreshTokenEntity);
 
-//        // 5. 프론트엔드로 토큰 전달
-//        String redirectUrl = "http://localhost:3000/oauth2/callback" +
-//                "?accessToken=" + accessToken +
-//                "&refreshToken=" + refreshToken;
-//
-//        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(
-                "{" +
-                        "\"accessToken\":\"" + accessToken + "\"," +
-                        "\"refreshToken\":\"" + refreshToken + "\"," +
-                        "\"memberId\":" + member.getId() +
-                        "}"
-        );
+        // 5. 프론트엔드로 토큰 전달
+        String redirectUrl = "http://localhost:3000/" +
+                "?accessToken=" + accessToken +
+                "&refreshToken=" + refreshToken +
+                "&memberId=" + member.getId();
+
+        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+//        response.setContentType("application/json");
+//        response.setCharacterEncoding("UTF-8");
+//        response.getWriter().write(
+//                "{" +
+//                        "\"accessToken\":\"" + accessToken + "\"," +
+//                        "\"refreshToken\":\"" + refreshToken + "\"," +
+//                        "\"memberId\":" + member.getId() +
+//                        "}"
+//        );
 
     }
 }
