@@ -148,7 +148,7 @@ public class FeedService {
                                    FeedUpdateRequest request,
                                    Long currentUserId) {
 
-        Feed feed = feedRepository.findByIdWithMember(feedId)
+        Feed feed = feedRepository.findById(feedId)
                 .orElseThrow(() -> new EntityNotFoundException("피드를 찾을 수 없습니다"));
 
         if (!feed.getMember().getId().equals(currentUserId)) {
@@ -209,27 +209,17 @@ public class FeedService {
             feedMentionRepository.save(mention);
         });
 
-        boolean isLiked = feedLikeRepository
-                .existsByFeedIdAndMemberId(feedId, currentUserId);
+        Feed updatedFeed = feedRepository.save(feed);
 
+        boolean isLiked = feedLikeRepository.existsByFeedIdAndMemberId(feedId, currentUserId);
         int commentCount = feedRepository.countCommentsByFeedId(feedId);
 
-        List<String> tags = feedTagRepository.findByFeedId(feedId)
-                .stream()
-                .map(t -> t.getTagName())
-                .toList();
+        List<String> tags = feedTagRepository.findByFeedId(feedId).stream().map(t -> t.getTagName()).toList();
+        List<String> savedImageUrls = feedImageRepository.findByFeedIdOrderByOrderNumAsc(feedId).stream().map(i -> i.getImageUrl()).toList();
+        List<Long> mentionedUserIds = feedMentionRepository.findByFeedId(feedId).stream().map(m -> m.getMentionedUser().getId()).toList();
 
-        List<String> savedImageUrls = feedImageRepository.findByFeedIdOrderByOrderNumAsc(feedId)
-                .stream()
-                .map(i -> i.getImageUrl())
-                .toList();
-
-        List<Long> mentionedUserIds = feedMentionRepository.findByFeedId(feedId)
-                .stream()
-                .map(m -> m.getMentionedUser().getId())
-                .toList();
-
-        return FeedResponse.from(feed, isLiked, commentCount, tags, savedImageUrls, mentionedUserIds);
+        // 최종 영속 동기화가 끝난 updatedFeed 객체를 빌더 포맷으로 리턴
+        return FeedResponse.from(updatedFeed, isLiked, commentCount, tags, savedImageUrls, mentionedUserIds);
     }
 
     // 피드 삭제
