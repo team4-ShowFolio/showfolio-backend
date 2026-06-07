@@ -11,6 +11,7 @@ import com.example.showfolio.dto.response.TokenResponse;
 import com.example.showfolio.entity.Member;
 import com.example.showfolio.entity.RefreshToken;
 import com.example.showfolio.entity.UserTechStack;
+import com.example.showfolio.enums.SubscriptionType;
 import com.example.showfolio.repository.MemberRepository;
 import com.example.showfolio.repository.RefreshTokenRepository;
 import com.example.showfolio.repository.UserTechStackRepository;
@@ -238,5 +239,26 @@ public class AuthService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(()->new RuntimeException("존재하지 않는 유저입니다."));
         return new MemberResponse(member);
+    }
+
+    // PRO (AI 기능) 구독 상태 변경
+    @Transactional
+    public MemberResponse changeSubscription(Long memberId, SubscriptionType type) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 유저입니다"));
+
+        // 전달받은 타입("PREMIUM" 또는 "FREE")에 맞게 엔티티 상태 변경
+        member.setSubscriptionType(type);
+
+        if (type == SubscriptionType.PREMIUM) {
+            // 구독할 때는 한 달 뒤로 만료일 세팅
+            member.setSubscriptionExpiredAt(LocalDateTime.now().plusMonths(1));
+        } else {
+            // 해지할 때는 만료일을 즉시 null로 초기화
+            member.setSubscriptionExpiredAt(null);
+        }
+
+        memberRepository.save(member);
+        return new MemberResponse(member); // 갱신된 회원 객체 반환
     }
 }
