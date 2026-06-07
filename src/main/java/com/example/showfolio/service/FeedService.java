@@ -236,7 +236,7 @@ public class FeedService {
     @Transactional
     public void deleteFeed(Long feedId, Long currentUserId) {
 
-        Feed feed = feedRepository.findById(feedId)
+        Feed feed = feedRepository.findByIdWithMember(feedId)
                 .orElseThrow(() -> new EntityNotFoundException("피드를 찾을 수 없습니다"));
 
         if (!feed.getMember().getId().equals(currentUserId)) {
@@ -301,7 +301,7 @@ public class FeedService {
     @Transactional
     public FeedLikeResponse toggleLike(Long feedId, Long currentUserId) {
 
-        Feed feed = feedRepository.findById(feedId)
+        Feed feed = feedRepository.findByIdWithMember(feedId)
                 .orElseThrow(() -> new EntityNotFoundException("피드를 찾을 수 없습니다"));
 
         Member member = memberRepository.findById(currentUserId)
