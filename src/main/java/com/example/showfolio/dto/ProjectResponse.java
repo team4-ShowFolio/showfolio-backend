@@ -11,6 +11,7 @@ import java.util.List;
 public record ProjectResponse(
         Long id,
         Long memberId,
+        String userNickname, // 닉네임 추가
         String title,
         String description,
         String troubleShooting,
@@ -29,10 +30,11 @@ public record ProjectResponse(
         List<String> stacks
 
 ) {
-    public static ProjectResponse from(Project p) {
+    public static ProjectResponse from(Project p, String nickname) {
         return new ProjectResponse(
                 p.getId(),
                 p.getMemberId(),
+                nickname,
                 p.getTitle(),
                 p.getDescription(),
                 p.getTroubleShooting(),
@@ -50,5 +52,10 @@ public record ProjectResponse(
                 p.getUpdatedAt(),
                 p.getTechStacks().stream().map(ProjectTech::getTechName).toList()
         );
+    }
+
+    // 기존 호환성 유지
+    public static ProjectResponse from(Project p) {
+        return from(p, null);
     }
 }

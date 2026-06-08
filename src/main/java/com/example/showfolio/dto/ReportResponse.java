@@ -13,9 +13,10 @@ public record ReportResponse(
         TargetType targetType,
         ReportReason reportReason,
         String content,
-        Instant createdAt
+        Instant createdAt,
+        String status //상태 추가
 ) {
-    public static ReportResponse from(Report report) {
+    public static ReportResponse from(Report report, String status) {
         return new ReportResponse(
                 report.getId(),
                 report.getReporterId(),
@@ -23,7 +24,12 @@ public record ReportResponse(
                 report.getTargetType(),
                 report.getReportReason(),
                 report.getContent(),
-                report.getCreatedAt()
+                report.getCreatedAt(),
+                status
         );
+    }
+
+    public static ReportResponse from(Report report) {
+        return from(report, null);
     }
 }

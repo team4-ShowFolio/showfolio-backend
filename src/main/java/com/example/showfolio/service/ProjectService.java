@@ -7,6 +7,7 @@ import com.example.showfolio.entity.Project;
 import com.example.showfolio.enums.Visibility;
 import com.example.showfolio.exception.ProjectAccessDeniedException;
 import com.example.showfolio.exception.ProjectNotFoundException;
+import com.example.showfolio.repository.MemberRepository;
 import com.example.showfolio.repository.ProjectRepository;
 import com.example.showfolio.dto.ProjectSearchCondition;
 import com.example.showfolio.dto.ProjectLikeResponse;
@@ -31,6 +32,7 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final ProjectLikeRepository projectLikeRepository;
+    private final MemberRepository memberRepository;
 
 
     /** 프로젝트 등록 */
@@ -113,8 +115,14 @@ public class ProjectService {
             }
         }
         ProjectSearchCondition condition = new ProjectSearchCondition(keyword, stacks, authorIds, sort);
+        //닉네임 추가
         return projectRepository.search(condition, pageable)
-                .map(ProjectResponse::from);
+                .map(p -> {
+                    String nickname = memberRepository.findById(p.getMemberId())
+                            .map(m -> m.getNickname())
+                            .orElse(null);
+                    return ProjectResponse.from(p, nickname);
+                });
     }
 
 
