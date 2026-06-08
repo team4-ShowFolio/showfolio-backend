@@ -21,12 +21,35 @@
 
 - React
 
+> ### API
+- Gemini-2.5-flash(AI기능)
+- NanumGothic폰트(PDF변환기능)
+
 > ### 협업 툴
 
 - Github
 - Notion
 - ERDCloud
 - GoogleDrive
+
+---
+
+## <div align="center">개발 시작하기</div>
+
+> ### 로컬 서버 접속하기
+
+> env 플러그인 추가 : (https://popcorn-overflow.tistory.com/18) 참고
+
+1. 플러그인 EnvFile을 IntelliJ에 설치
+2. 프로젝트 root에 .env파일 생성
+3. .env.example 참고해서 키-값 채우기
+4. IntelliJ에서 Application 실행버튼의 드랍다운클릭 -> Edit Configurations
+5. Enable EnvFile 체크박스를 체크하고 하단의 + 아이콘 클릭 -> root에 생성한 .env 파일 선택
+
+> IntelliJ 설정 : Build, Execution, Deployment -> Compilers ->
+
+1. Annotation Processors : Enable annotation processing 체크활성화
+2. Java Compilder : Additional command line parameters에 -parameters 추가
 
 ---
 
