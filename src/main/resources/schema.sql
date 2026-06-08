@@ -278,12 +278,3 @@ CREATE TABLE ai_usage (
                           PRIMARY KEY (id),
                           INDEX idx_member_created (member_id, created_at)
 ) ENGINE=InnoDB;
-
--- ==========================================
--- 📌 기초 데이터 INSERT
--- ==========================================
-INSERT INTO member (email, password, nickname, role, created_at)
-VALUES
-    ('test1@test.com', '$2a$10$abcdefghijklmnopqrstuuVnlNsV8n4OJhw0oNHl.iMbqpMpsgU9C', '테스트유저1', 'USER', NOW()),
-    ('test2@test.com', '$2a$10$abcdefghijklmnopqrstuuVnlNsV8n4OJhw0oNHl.iMbqpMpsgU9C', '테스트유저2', 'USER', NOW()),
-    ('test3@test.com', '$2a$10$abcdefghijklmnopqrstuuVnlNsV8n4OJhw0oNHl.iMbqpMpsgU9C', '테스트유저3', 'USER', NOW());
