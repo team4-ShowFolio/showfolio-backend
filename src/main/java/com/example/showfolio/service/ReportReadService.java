@@ -42,7 +42,12 @@ public class ReportReadService implements ReportReader, ReportCounter {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("reportReason"), condition.reportReason()));
         }
 
-        return reportRepository.findAll(spec, pageable).map(ReportResponse::from);
+        return reportRepository.findAll(spec, pageable).map(report -> {
+            String status = reportProcessRepository.findByReportId(report.getId())
+                    .map(rp -> rp.getStatus().name())
+                    .orElse("PENDING");
+            return ReportResponse.from(report, status);
+        });
     }
 
     @Override
