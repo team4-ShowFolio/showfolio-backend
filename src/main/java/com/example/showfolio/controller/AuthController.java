@@ -129,4 +129,10 @@ public class AuthController {
         Long memberId = jwtUtil.getUserId(token.substring(7));
         return ResponseEntity.ok(authService.changeSubscription(memberId, SubscriptionType.FREE));
     }
+
+    // 다른 유저 기술스택 조회
+    @GetMapping("/techstack/{memberId}")
+    public ResponseEntity<?> getMemberTechStack(@PathVariable Long memberId) {
+        return ResponseEntity.ok(authService.getTechStack(memberId));
+    }
 }
